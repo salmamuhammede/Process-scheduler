@@ -1,6 +1,7 @@
 #include "headers.h"
 
 /* Modify this file as needed*/
+//Comments Salma :topics req 6 
 int remainingtime;
 
 int main(int agrc, char * argv[])
