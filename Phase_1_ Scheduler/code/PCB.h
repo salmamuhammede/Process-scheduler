@@ -1,3 +1,6 @@
+#ifndef pcbn
+#define pcbn
+
 struct PCB
 {
     int pid;
@@ -22,3 +25,4 @@ x->waitingtime=wt;
 x->state=st;
 x->remainingtime=rmt;
 }
+#endif

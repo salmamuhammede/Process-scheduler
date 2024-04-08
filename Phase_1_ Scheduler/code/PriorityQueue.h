@@ -1,7 +1,11 @@
 #ifndef PRIORITYQUEUE.H
 #define PRIORITYQUEUE.H
-#include "PCB.h"
-#include "headers.h"
+
+
+
+#include"headers.h"
+
+#include"PCB.h"
 typedef struct node{
 struct PCB P;
 int alg;
