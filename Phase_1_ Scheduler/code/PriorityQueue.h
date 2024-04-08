@@ -1,5 +1,7 @@
-#include<PCB.h>
-#include<headers.h>
+#ifndef PRIORITYQUEUE.H
+#define PRIORITYQUEUE.H
+#include "PCB.h"
+#include "headers.h"
 typedef struct node{
 struct PCB P;
 int alg;
@@ -9,20 +11,21 @@ typedef struct priorityQueue{
     node *head;
     node *tail;
     int length;
-}priorityQueue; 
+}priorityQueue;
 
-void initQueue(priorityQueue *comming)
+void initQueue(priorityQueue * comming)
 {  
-    comming->tail = nullptr;
-    comming->head = nullptr;
+    comming->tail = NULL;
+    comming->head = NULL;
     comming->length=0;
   
-}_
+}
 
-/*bool enqueue(priorityQueue *comming,PCB process,int chosen)
+
+bool enqueue(priorityQueue *comming,PCB process,int chosen)
 {
     node * currentProcess=(node *)malloc(sizeof(node));
-    currentProcess->PCB=process;
+    currentProcess->P=process;
     currentProcess->alg=chosen;    
     currentProcess->next=nullptr;
     if(comming->length==0&&comming->tail==nullptr&&comming->tail==nullptr)
@@ -33,11 +36,11 @@ void initQueue(priorityQueue *comming)
     else if(comming->head->alg>currentProcess->alg)
     {
         currentProcess->next=comming->head;
-        comming->head=curentProcess;
+        comming->head=currentProcess;
     }
     else{
         node *pointer=comming->head;
-        while(pointer&&pointer->next&&currentProcess->alg>pointer>next->alg)
+        while(pointer!=NULL && pointer->next !=NULL && currentProcess->alg > pointer->next->alg)
         {
             pointer=pointer->next;
         }
@@ -56,6 +59,29 @@ bool dequeu(priorityQueue *comming)
         return false;
     } 
     else {
-
+        node* temp=comming->head;
+        comming->head=comming->head->next;
+        free(temp);
+        comming->length--;
     }
-}*/
+    return true;
+}
+struct PCB top(priorityQueue *comming)
+{
+    if(isEmpty(comming))
+    {
+        printf("The quueu is empty\n");
+        struct PCB L;
+        L.pid=-1;
+        return L;
+    }
+    else
+    {
+        return comming->head->P;
+    }
+}
+bool isEmpty(priorityQueue * comming)
+{
+    return (comming->length==0);
+}
+#endif
