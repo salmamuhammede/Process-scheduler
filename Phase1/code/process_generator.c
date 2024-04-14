@@ -8,25 +8,91 @@ int algo;
 int quantuam;
 struct PCB currentprocess;
 struct priorityQueue ready;
-    
+ struct msgbuff
+{
+    long msgtype;
+    struct PCB send;
+};
+void handler(int signum)
+{
+    printf("client ha terminated\n");
+    exit(0);
+}   
 int main(int argc, char * argv[])
 {
     signal(SIGINT, clearResources);
-    initQueue(&ready);
+    
     // 1. Read the input files.
     readFile(argv[1]);
     algo =atoi(argv[1]);
     if(argc==4)
     {
-        quantuam=argv[3];
+        quantuam=atoi(argv[3]);
     }
 
     // 3. Initiate and create the scheduler and clock processes.
+    int pid=fork();
+    if(pid==-1)
+    {
+        printf("error forking schudler");
+        exit(-1);
+    }
+    else if(pid ==0)
+    {
+        printf("\nI am the schudler, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
+		execl("scheduler.c",&algo,&quantuam,NULL);
+    }
+    pid=fork(); 
     // 4. Use this function after creating the clock process to initialize clock
+    if(pid==-1)
+    {
+        printf("error forking clk");
+        exit(-1);
+    }
+    else if(pid ==0)
+    {
+        printf("\nI am the clk, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
+		execl("clk.c","",NULL);
+    }
     initClk();
+     
     // To get time use this
     int x = getClk();
     printf("current time is %d\n", x);
+    int send_val;
+    key_t key=ftok("keyfile",'s');
+     if (key == -1)
+    {
+        perror("Error in ftok");
+        exit(-1);
+    }
+    int msqid=msgget(key,0666|IPC_CREAT);
+      if (key == -1)
+    {
+        perror("Error in creating ids");
+        exit(-1);
+    } 
+    struct msgbuff messagebefore;
+    struct PCB sent; 
+    messagebefore.msgtype = 1; 
+    int y;
+    while(1)
+    {
+        y=getClk();
+        while(y!=x)
+        {
+            if(isEmpty(&ready))
+            {
+                sent=top(&ready);
+                while(sent.arrivaltime==y)
+                {
+                    
+                } 
+            }
+            x=y;
+
+        }
+    }
     // TODO Generation Main Loop
     // 5. Create a data structure for processes and provide it with its parameters.
     // 6. Send the information to the scheduler at the appropriate time.

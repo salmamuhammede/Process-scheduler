@@ -23,7 +23,7 @@ void initQueue(priorityQueue * comming)
 }
 
 
-bool enqueue(priorityQueue *comming,struct PCB process,int chosen)
+int  enqueue(priorityQueue *comming,struct PCB process,int chosen)
 {
     node * currentProcess=(node *)malloc(sizeof(node));
     currentProcess->P=process;
@@ -50,7 +50,7 @@ bool enqueue(priorityQueue *comming,struct PCB process,int chosen)
 
     }
     comming->length++;
-    return true;
+    return 1;
 }
 struct PCB dequeu(priorityQueue *comming)
 {
@@ -72,7 +72,7 @@ struct PCB dequeu(priorityQueue *comming)
 }
 struct PCB top(priorityQueue *comming)
 {
-    if(isEmpty(comming))
+    if(isEmpty(comming)==1)
     {
         printf("The quueu is empty\n");
         struct PCB L;
