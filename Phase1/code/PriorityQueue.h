@@ -1,7 +1,8 @@
 #ifndef PRIORITYQUEUE.H
 #define PRIORITYQUEUE.H
-#include"headers.h"
-#include"PCB.h"
+#include "headers.h"
+#include "PCB.h"
+
 typedef struct node{
 struct PCB P;
 int alg;
@@ -22,13 +23,13 @@ void initQueue(priorityQueue * comming)
 }
 
 
-bool enqueue(priorityQueue *comming,PCB process,int chosen)
+bool enqueue(priorityQueue *comming,struct PCB process,int chosen)
 {
     node * currentProcess=(node *)malloc(sizeof(node));
     currentProcess->P=process;
     currentProcess->alg=chosen;    
-    currentProcess->next=nullptr;
-    if(comming->length==0&&comming->tail==nullptr&&comming->tail==nullptr)
+    currentProcess->next=NULL;
+    if(comming->length==0&&comming->tail==NULL&&comming->tail==NULL)
     {
         comming->head=comming->tail=currentProcess;
 

@@ -7,14 +7,18 @@ void clearResources(int);
 int algo;
 int quantuam;
 struct PCB currentprocess;
-PriorityQueue * ready;
+struct PriorityQueue ready;
 int main(int argc, char * argv[])
 {
     signal(SIGINT, clearResources);
     // TODO Initialization
     // 1. Read the input files.
-    readFile();
-
+    readFile(argv[1]);
+    algo =argv[1];
+    if(argc==4)
+    {
+        quantuam=argv[3];
+    }
 
     // 3. Initiate and create the scheduler and clock processes.
     // 4. Use this function after creating the clock process to initialize clock
@@ -28,10 +32,7 @@ int main(int argc, char * argv[])
     // 7. Clear clock resources
     destroyClk(true);
 }
-void chooseschuldler()
-{
 
-}
 void readFile(char * filename)
 {
     FILE *file;
@@ -53,7 +54,8 @@ void readFile(char * filename)
             currentprocess.runningtime=runtime[i];
             currentprocess.priority=priority[i];
             currentprocess.pid=id[i];
-            enqueue(ready,currentprocess,currentprocess.arrivaltime);
+            setPCB(& currentprocess,id[i],arrival[i],runtime[i],priority[i]);
+            enqueue(&ready,currentprocess,currentprocess.arrivaltime);
             printf("%d    %d     %d     %d\n",id[i],arrival[i],runtime[i],priority[i]);
             i++;
         }
