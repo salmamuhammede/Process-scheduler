@@ -7,12 +7,12 @@ void readFile(char*l);
 int algo;
 int quantuam;
 struct PCB currentprocess;
-struct PriorityQueue ready;
+struct priorityQueue ready;
     
 int main(int argc, char * argv[])
 {
     signal(SIGINT, clearResources);
-    
+    initQueue(&ready);
     // 1. Read the input files.
     readFile(argv[1]);
     algo =atoi(argv[1]);

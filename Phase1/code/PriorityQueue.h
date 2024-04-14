@@ -1,5 +1,5 @@
-#ifndef PRIORITYQUEUE.H
-#define PRIORITYQUEUE.H
+#ifndef PRIORITYQUEUE_H
+#define PRIORITYQUEUE_H
 #include "headers.h"
 #include "PCB.h"
 
@@ -84,7 +84,7 @@ struct PCB top(priorityQueue *comming)
         return comming->head->P;
     }
 }
-bool isEmpty(priorityQueue * comming)
+int isEmpty(priorityQueue * comming)
 {
     return (comming->length==0);
 }
