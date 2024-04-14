@@ -20,6 +20,7 @@ void handler(int signum)
 }   
 int main(int argc, char * argv[])
 {
+    initClk();
     signal(SIGINT, clearResources);
     
     // 1. Read the input files.
@@ -54,7 +55,6 @@ int main(int argc, char * argv[])
         printf("\nI am the clk, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
 		execl("clk.c","",NULL);
     }
-    initClk();
      
     // To get time use this
     int x = getClk();
@@ -71,27 +71,31 @@ int main(int argc, char * argv[])
     {
         perror("Error in creating ids");
         exit(-1);
-    } 
+    }
+    printf("\nsent %d\n",msqid);
     struct msgbuff messagebefore;
     struct PCB sent; 
     messagebefore.msgtype = 1; 
     int y;
     while(1)
     {
-        y=getClk();
-        while(y!=x)
+     y=getClk();
+     if(isEmpty(&ready)!= 1)
         {
-            if(isEmpty(&ready))
+            sent=top(&ready);
+            while(sent.arrivaltime<=x)
             {
-                sent=top(&ready);
-                while(sent.arrivaltime==y)
-                {
-                    
-                } 
+                messagebefore.send=sent;
+                send_val = msgsnd(key, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
+                if (send_val == -1)
+                perror("Error in send");
+                sent = dequeu(&ready);
+                sent = top(&ready);
             }
-            x=y;
-
-        }
+            if (y!=x)           
+                x = y;
+        }else
+            break;
     }
     // TODO Generation Main Loop
     // 5. Create a data structure for processes and provide it with its parameters.

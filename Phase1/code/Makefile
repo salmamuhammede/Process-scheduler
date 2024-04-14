@@ -12,3 +12,4 @@ all: clean build
 
 run:
 	./process_generator.out "processes.txt" 1 1000
+	./scheduler.out
