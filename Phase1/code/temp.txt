@@ -1,0 +1,36 @@
+In file included from process_generator.c:4:
+PriorityQueue.h:1:22: warning: extra tokens at end of #ifndef directive
+    1 | #ifndef PRIORITYQUEUE.H
+      |                      ^
+PriorityQueue.h:2:9: warning: ISO C99 requires whitespace after the macro name
+    2 | #define PRIORITYQUEUE.H
+      |         ^~~~~~~~~~~~~
+PriorityQueue.h: In function ‘top’:
+PriorityQueue.h:75:8: warning: implicit declaration of function ‘isEmpty’ [-Wimplicit-function-declaration]
+   75 |     if(isEmpty(comming))
+      |        ^~~~~~~
+PriorityQueue.h: At top level:
+PriorityQueue.h:87:6: error: conflicting types for ‘isEmpty’; have ‘bool(priorityQueue *)’ {aka ‘short int(priorityQueue *)’}
+   87 | bool isEmpty(priorityQueue * comming)
+      |      ^~~~~~~
+PriorityQueue.h:75:8: note: previous implicit declaration of ‘isEmpty’ with type ‘int()’
+   75 |     if(isEmpty(comming))
+      |        ^~~~~~~
+process_generator.c: In function ‘main’:
+process_generator.c:21:17: warning: assignment to ‘int’ from ‘char *’ makes integer from pointer without a cast [-Wint-conversion]
+   21 |         quantuam=argv[3];
+      |                 ^
+process_generator.c: In function ‘readFile’:
+process_generator.c:60:21: warning: passing argument 1 of ‘enqueue’ from incompatible pointer type [-Wincompatible-pointer-types]
+   60 |             enqueue(&ready,currentprocess,currentprocess.arrivaltime);
+      |                     ^~~~~~
+      |                     |
+      |                     struct PriorityQueue *
+In file included from process_generator.c:4:
+PriorityQueue.h:26:29: note: expected ‘priorityQueue *’ but argument is of type ‘struct PriorityQueue *’
+   26 | bool enqueue(priorityQueue *comming,struct PCB process,int chosen)
+      |              ~~~~~~~~~~~~~~~^~~~~~~
+process_generator.c: At top level:
+process_generator.c:10:22: error: storage size of ‘ready’ isn’t known
+   10 | struct PriorityQueue ready;
+      |                      ^~~~~

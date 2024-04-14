@@ -1,20 +1,21 @@
 #include "headers.h"
 #define NUMOFPROC 3
 #include "PCB.h"
-#include <string.h>
 #include "PriorityQueue.h"
 void clearResources(int);
+void readFile(char*l);
 int algo;
 int quantuam;
 struct PCB currentprocess;
 struct PriorityQueue ready;
+    
 int main(int argc, char * argv[])
 {
     signal(SIGINT, clearResources);
-    // TODO Initialization
+    
     // 1. Read the input files.
     readFile(argv[1]);
-    algo =argv[1];
+    algo =atoi(argv[1]);
     if(argc==4)
     {
         quantuam=argv[3];
@@ -31,6 +32,7 @@ int main(int argc, char * argv[])
     // 6. Send the information to the scheduler at the appropriate time.
     // 7. Clear clock resources
     destroyClk(true);
+    return 0;
 }
 
 void readFile(char * filename)
