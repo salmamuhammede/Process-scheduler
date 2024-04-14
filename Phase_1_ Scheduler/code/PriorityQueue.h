@@ -1,10 +1,6 @@
 #ifndef PRIORITYQUEUE.H
 #define PRIORITYQUEUE.H
-
-
-
 #include"headers.h"
-
 #include"PCB.h"
 typedef struct node{
 struct PCB P;
@@ -55,20 +51,23 @@ bool enqueue(priorityQueue *comming,PCB process,int chosen)
     comming->length++;
     return true;
 }
-bool dequeu(priorityQueue *comming)
+struct PCB dequeu(priorityQueue *comming)
 {
+    struct PCB j;
     if(comming->length==0)
     {
         printf("Empty Queue\n");
-        return false;
+        j.pid=5;
+        return j;
     } 
     else {
         node* temp=comming->head;
+        j=temp->P; 
         comming->head=comming->head->next;
         free(temp);
         comming->length--;
     }
-    return true;
+    return j;
 }
 struct PCB top(priorityQueue *comming)
 {
