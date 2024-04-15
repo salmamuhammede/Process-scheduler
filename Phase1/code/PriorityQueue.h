@@ -52,6 +52,53 @@ int  enqueue(priorityQueue *comming,struct PCB process,int chosen)
     comming->length++;
     return 1;
 }
+int enqueue_priority(priorityQueue *comming, struct PCB process) {
+    node *currentProcess = (node *)malloc(sizeof(node));
+    if (currentProcess == NULL) {
+        perror("Failed to allocate memory for new node");
+        return -1;  // return -1 to indicate error in memory allocation
+    }
+
+    currentProcess->P = process;
+    currentProcess->next = NULL;
+
+    if (comming->head == NULL) {
+        // Queue is empty
+        comming->head = comming->tail = currentProcess;
+    } else {
+        // Find the correct insertion point considering priority and arrival time
+        node *pointer = comming->head;
+        node *previous = NULL;
+
+        while (pointer != NULL && (currentProcess->P.priority < pointer->P.priority || 
+              (currentProcess->P.priority == pointer->P.priority && currentProcess->P.arrivaltime > pointer->P.arrivaltime))) {
+            previous = pointer;
+            pointer = pointer->next;
+        }
+
+        if (previous == NULL) {
+            // Insert at head
+            currentProcess->next = comming->head;
+            comming->head = currentProcess;
+        } else {
+            // Insert in middle or at tail
+            previous->next = currentProcess;
+            currentProcess->next = pointer;
+        }
+    }
+
+    comming->length++;
+    return 1;
+}
+
+void printQueue(priorityQueue *queue) {
+    const node *current = queue->head;  // Start with the head of the queue
+    
+    while (current != NULL) {
+        printf("%d\n", current->P.pid);
+        current = current->next;  // Move to the next node
+    }
+}
 struct PCB dequeu(priorityQueue *comming)
 {
     struct PCB j;
