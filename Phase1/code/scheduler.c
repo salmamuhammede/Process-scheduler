@@ -1,10 +1,19 @@
-#include "headers.h"
+//#include "headers.h"
 #include "PCB.h"
 #include "PriorityQueue.h"
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include<signal.h>
  struct msgbuff
 {
     long msgtype;
-    struct PCB send;
+    //struct PCB send;'char
+    char text[256];
 };
 int main(int argc, char * argv[])
 {
@@ -22,18 +31,19 @@ int main(int argc, char * argv[])
     } 
     int rec_val;
     struct msgbuff messagebefore;
-    initClk();
+    //initClk();
     
     //TODO implement the scheduler :)
     //upon termination release the clock resources.
     printf("\nreceived %d \n",msqid);
     for (int i = 0; i < 7; i++)
     {
-            rec_val = msgrcv(key, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT);
+            rec_val = msgrcv(key, &messagebefore, 256, 0, !IPC_NOWAIT);
         if (rec_val == -1)
             perror("Error in receive");
         else
-            printf("\nMessage received: %d\n", messagebefore.send.pid);
+            printf("\nMessage received: %s\n", messagebefore.text);
     }
-    destroyClk(true);
+    //destroyClk(true);
+    return 0;
 }
