@@ -105,7 +105,7 @@ struct PCB dequeu(priorityQueue *comming)
     if(comming->length==0)
     {
         printf("Empty Queue\n");
-        j.pid=5;
+        j.pid=-1;
         return j;
     } 
     else {

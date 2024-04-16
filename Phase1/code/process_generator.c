@@ -3,7 +3,7 @@
 #include "PCB.h"
 #include "PriorityQueue.h"
 void clearResources(int);
-void readFile(char*l);
+int readFile(char*l);
 int algo;
 int quantuam;
 struct PCB currentprocess;
@@ -20,11 +20,10 @@ void handler(int signum)
 }   
 int main(int argc, char * argv[])
 {
-    initClk();
     signal(SIGINT, clearResources);
     
     // 1. Read the input files.
-    readFile(argv[1]);
+    int p_num = readFile(argv[1]);
     algo =atoi(argv[1]);
     if(argc==4)
     {
@@ -40,73 +39,76 @@ int main(int argc, char * argv[])
     }
     else if(pid ==0)
     {
-        printf("\nI am the schudler, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
-		execl("scheduler.c",&algo,&quantuam,NULL);
-    }
-    pid=fork(); 
-    // 4. Use this function after creating the clock process to initialize clock
-    if(pid==-1)
-    {
-        printf("error forking clk");
-        exit(-1);
-    }
-    else if(pid ==0)
-    {
-        printf("\nI am the clk, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
-		execl("clk.c","",NULL);
-    }
-     
-    // To get time use this
-    int x = getClk();
-    printf("current time is %d\n", x);
-    int send_val;
-    key_t key=ftok("keyfile",'s');
-     if (key == -1)
-    {
-        perror("Error in ftok");
-        exit(-1);
-    }
-    int msqid=msgget(key,0666|IPC_CREAT);
-      if (key == -1)
-    {
-        perror("Error in creating ids");
-        exit(-1);
-    }
-    printf("\nsent %d\n",msqid);
-    struct msgbuff messagebefore;
-    struct PCB sent; 
-    messagebefore.msgtype = 1; 
-    int y;
-    while(1)
-    {
-     y=getClk();
-     if(isEmpty(&ready)!= 1)
-        {
-            sent=top(&ready);
-            while(sent.arrivaltime<=x)
+            printf("\nI am the schudler, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
+            execl("scheduler.out",&algo,&quantuam,&p_num,NULL);
+            //exit(0);
+    }else{
+            pid=fork(); 
+            // 4. Use this function after creating the clock process to initialize clock
+            if(pid==-1)
             {
-                messagebefore.send=sent;
-                send_val = msgsnd(key, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
-                if (send_val == -1)
-                perror("Error in send");
-                sent = dequeu(&ready);
-                sent = top(&ready);
+                printf("error forking clk");
+                exit(-1);
             }
-            if (y!=x)           
-                x = y;
-        }else
-            break;
-    }
-    // TODO Generation Main Loop
-    // 5. Create a data structure for processes and provide it with its parameters.
-    // 6. Send the information to the scheduler at the appropriate time.
-    // 7. Clear clock resources
-    destroyClk(true);
-    return 0;
+            else if(pid ==0)
+            {
+                printf("\nI am the clk, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
+                execl("clk.out","",NULL);
+                //exit(0);
+            }else{
+                    // To get time use this
+                    sleep(2);
+                    initClk();
+                    int x = getClk();
+                    printf("current time is %d\n", x);
+                    int send_val;
+                    key_t key=ftok("keyfile",'s');
+                    if (key == -1)
+                    {
+                        perror("Error in ftok");
+                        exit(-1);
+                    }
+                    int msqid=msgget(key,0666|IPC_CREAT);
+                    if (key == -1)
+                    {
+                        perror("Error in creating ids");
+                        exit(-1);
+                    }
+                    struct msgbuff messagebefore;
+                    struct PCB sent; 
+                    messagebefore.msgtype = 1; 
+                    int y;
+                    sent=top(&ready);
+                    while((isEmpty(&ready)!= 1))
+                    {
+                    printf("\nin first while x = %d\n",getClk());
+                    y=getClk();
+                    while((sent.arrivaltime<=x)&&(isEmpty(&ready)!= 1))
+                        {
+                            sent = dequeu(&ready);
+                            printf("\nsent %d\n",msqid);
+                            messagebefore.send=sent;
+                            send_val = msgsnd(msqid, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
+                            if (send_val == -1)
+                            perror("Error in send");
+                            sent=top(&ready);
+                        }
+                            if (y!=x)           
+                                x = y;
+                    }
+                    // TODO Generation Main Loop
+                    // 5. Create a data structure for processes and provide it with its parameters.
+                    // 6. Send the information to the scheduler at the appropriate time.
+                    // 7. Clear clock resources
+                    destroyClk(true);
+                    return 0;
+            }
+        }
 }
 
-void readFile(char * filename)
+int readFile(char * filename)
 {
+    int i=-1;
     FILE *file;
     file = fopen(filename, "r");
     int id[NUMOFPROC];
@@ -116,7 +118,7 @@ void readFile(char * filename)
     char data[100];
     if(file) 
     {
-        int i=0;
+        i++;
         while(fgets(data,100,file))
         { 
             if(data[0]=='#')
@@ -138,6 +140,7 @@ void readFile(char * filename)
         printf("Not able to open the file.");
     }
     fclose(file); 
+    return i;
     // 2. Ask the user for the chosen scheduling algorithm and its parameters, if there are any.
     //printf("Choose a scheduling algorithm\n1)RR\n2)HPF\n3)SRTN\n");
     /*int algo,quantum;

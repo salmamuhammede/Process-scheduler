@@ -12,8 +12,7 @@
  struct msgbuff
 {
     long msgtype;
-    //struct PCB send;'char
-    char text[256];
+    struct PCB send;
 };
 int main(int argc, char * argv[])
 {
@@ -36,13 +35,14 @@ int main(int argc, char * argv[])
     //TODO implement the scheduler :)
     //upon termination release the clock resources.
     printf("\nreceived %d \n",msqid);
-    for (int i = 0; i < 7; i++)
+    int p_num = atoi(argv[3]);
+    for (int i = 0; i < p_num; i++)
     {
-            rec_val = msgrcv(key, &messagebefore, 256, 0, !IPC_NOWAIT);
+            rec_val = msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT);
         if (rec_val == -1)
             perror("Error in receive");
         else
-            printf("\nMessage received: %s\n", messagebefore.text);
+            printf("\nMessage received: %d\n", messagebefore.send.pid);
     }
     //destroyClk(true);
     return 0;
