@@ -8,6 +8,22 @@ int algo;
 int quantuam;
 struct PCB currentprocess;
 struct priorityQueue ready;
+void writeToFile(const char *filename, int num1, int num2) {
+    // Open the file in write mode. Use "a" mode to append if you don't want to overwrite existing data.
+    FILE *file = fopen(filename, "a");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    // Write the two integers to the file
+    fprintf(file, "%d %d\n", num1, num2);
+
+    // Close the file
+    fclose(file);
+
+   
+}
  struct msgbuff
 {
     long msgtype;
@@ -29,6 +45,10 @@ int main(int argc, char * argv[])
     {
         quantuam=atoi(argv[3]);
     }
+    char algo_str[10], quantum_str[10], p_num_str[10];
+    snprintf(algo_str, sizeof(algo_str), "%d", algo);
+    snprintf(quantum_str, sizeof(quantum_str), "%d", quantuam);
+    snprintf(p_num_str, sizeof(p_num_str), "%d", p_num);
 
     // 3. Initiate and create the scheduler and clock processes.
     int pid=fork();
@@ -40,7 +60,7 @@ int main(int argc, char * argv[])
     else if(pid ==0)
     {
             printf("\nI am the schudler, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
-            execl("scheduler.out",&algo,&quantuam,&p_num,NULL);
+         //  execl("./scheduler.out", "scheduler.out", algo_str, quantum_str, p_num_str, (char *) NULL);
             //exit(0);
     }else{
             pid=fork(); 
@@ -79,18 +99,22 @@ int main(int argc, char * argv[])
                     messagebefore.msgtype = 1; 
                     int y;
                     sent=top(&ready);
+                   
                     while((isEmpty(&ready)!= 1))
                     {
+                         
                     printf("\nin first while x = %d\n",getClk());
                     y=getClk();
-                    while((sent.arrivaltime<=x)&&(isEmpty(&ready)!= 1))
+                    while((sent.arrivaltime==x)&&(isEmpty(&ready)!= 1))
                         {
                             sent = dequeu(&ready);
-                            printf("\nsent %d\n",msqid);
+                            //printf("\nsent %d\n",msqid);
+                            //writeToFile("output.txt",sent.pid,1);
                             messagebefore.send=sent;
                             send_val = msgsnd(msqid, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
                             if (send_val == -1)
                             perror("Error in send");
+                            
                             sent=top(&ready);
                         }
                             if (y!=x)           
