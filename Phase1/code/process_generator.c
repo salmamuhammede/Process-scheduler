@@ -60,7 +60,7 @@ int main(int argc, char * argv[])
     else if(pid ==0)
     {
             printf("\nI am the schudler, my pid = %d and my parent's pid = %d\n\n", getpid(), getppid());
-         //  execl("./scheduler.out", "scheduler.out", algo_str, quantum_str, p_num_str, (char *) NULL);
+           execl("./scheduler.out", "scheduler.out", algo_str, quantum_str, p_num_str, (char *) NULL);
             //exit(0);
     }else{
             pid=fork(); 

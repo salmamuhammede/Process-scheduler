@@ -31,7 +31,7 @@ int main(int argc, char * argv[])
     } 
     int rec_val;
     struct msgbuff messagebefore;
-   // initClk();
+    initClk();
     
     //TODO implement the scheduler :)
     //upon termination release the clock resources.
@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
     printf("%d\n",p_num);
     for (int i = 0; i < p_num; i++)
     {
-         //writeToFile("output.txt", 1, getClk());
+         
             rec_val = msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT);
         if (rec_val == -1)
             perror("error in recieve");
