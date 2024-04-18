@@ -77,7 +77,7 @@ int main(int argc, char * argv[])
                 //exit(0);
             }else{
                     // To get time use this
-                    sleep(2);
+                    //sleep(2);
                     initClk();
                     int x = getClk();
                     printf("current time is %d\n", x);
@@ -103,7 +103,7 @@ int main(int argc, char * argv[])
                     while((isEmpty(&ready)!= 1))
                     {
                          
-                    printf("\nin first while x = %d\n",getClk());
+                  //  printf("\nin first while x = %d\n",getClk());
                     y=getClk();
                     while((sent.arrivaltime==x)&&(isEmpty(&ready)!= 1))
                         {
@@ -157,6 +157,9 @@ int readFile(char * filename)
             printf("%d    %d     %d     %d\n",id[i],arrival[i],runtime[i],priority[i]);
             i++;
         }
+setPCB(&currentprocess,-1,arrival[i-1]+1,0,0);
+enqueue(&ready,currentprocess,currentprocess.arrivaltime);
+ 
 
     } 
     else 

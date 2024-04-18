@@ -43,15 +43,20 @@ int main(int argc, char * argv[])
     {
          
             rec_val = msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT);
+           
         if (rec_val == -1)
             perror("error in recieve");
         else
         {
             writeToFile("output.txt",messagebefore.send.pid, getClk());
+            // printf("hallo");
            // printf("\nMessage received: %d\n", messagebefore.send.pid);
             
         }
     }
+     rec_val = msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT);
+        if (rec_val == -1)
+            perror("error in recieve");
    // destroyClk(true);
     return 0;
 }

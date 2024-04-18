@@ -41,7 +41,7 @@ int  enqueue(priorityQueue *comming,struct PCB process,int chosen)
     }
     else{
         node *pointer=comming->head;
-        while(pointer!=NULL && pointer->next !=NULL && currentProcess->alg > pointer->next->alg)
+        while(pointer!=NULL && pointer->next !=NULL && currentProcess->alg >= pointer->next->alg)
         {
             pointer=pointer->next;
         }
