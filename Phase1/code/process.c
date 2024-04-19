@@ -2,7 +2,6 @@
 
 /* Modify this file as needed*/
 //Comments Salma :topics req 6 
-int remainingtime;
 
 int main(int agrc, char * argv[])
 {
@@ -28,7 +27,7 @@ int main(int agrc, char * argv[])
     int y,x = getClk();
     while (1)
     {
-        //sleep(0.1); // to reduce lag
+        sleep(0.1); // to reduce lag
         y = getClk();
         if(y!=x){
             printf("clock: %d\n" ,getClk());

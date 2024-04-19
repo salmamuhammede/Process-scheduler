@@ -51,24 +51,24 @@ int main(int argc, char * argv[])
     printf("%d\n",p_num);
     printf("%d\n",atoi(argv[1]));
    // p_num++;
+   int clock = getClk();
     while(p_num)
     {
-            if ((msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT) != -1) && messagebefore.send.pid != -1)
-        
-        // if (rec_val == -1)
-        //     perror("error in recieve");
+        sleep(.1);// to reduce lag
+            while ((msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT) != -1) && messagebefore.send.pid != -1)
         {
            // p_num--;
             
             SelectedAlgo(atoi(argv[1]),messagebefore.send);
-writeToFile("output.txt",messagebefore.send.pid, getClk());
+            writeToFile("output.txt",messagebefore.send.pid, getClk());
             // printf("hallo");
            // printf("\nMessage received: %d\n", messagebefore.send.pid);
             
         }
        
-        if(messagebefore.send.pid!=-1)
-         HPF();
+        //if(messagebefore.send.pid!=-1){
+            HPF();
+        //}
 
          
     }
