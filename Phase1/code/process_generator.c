@@ -1,5 +1,5 @@
 #include "headers.h"
-#define NUMOFPROC 3
+#define NUMOFPROC 100
 #include "PCB.h"
 #include "PriorityQueue.h"
 void clearResources(int);
@@ -143,10 +143,10 @@ int readFile(char * filename)
     int i=-1;
     FILE *file;
     file = fopen(filename, "r");
-    int id[NUMOFPROC];
-    int arrival[NUMOFPROC];
-    int runtime[NUMOFPROC];
-    int priority[NUMOFPROC];
+    int id;
+    int arrival;
+    int runtime;
+    int priority;
     char data[100];
     if(file) 
     {
@@ -155,17 +155,17 @@ int readFile(char * filename)
         { 
             if(data[0]=='#')
                 continue;
-            sscanf(data,"%d %d %d %d",&id[i],&arrival[i],&runtime[i],&priority[i]);
-            currentprocess.arrivaltime=arrival[i];
-            currentprocess.runningtime=runtime[i];
-            currentprocess.priority=priority[i];
-            currentprocess.pid=id[i];
-            setPCB(& currentprocess,id[i],arrival[i],runtime[i],priority[i]);
+            sscanf(data,"%d %d %d %d",&id,&arrival,&runtime,&priority);
+            currentprocess.arrivaltime=arrival;
+            currentprocess.runningtime=runtime;
+            currentprocess.priority=priority;
+            currentprocess.pid=id;
+            setPCB(& currentprocess,id,arrival,runtime,priority);
             enqueue(&ready,currentprocess,currentprocess.arrivaltime);
-            printf("%d    %d     %d     %d\n",id[i],arrival[i],runtime[i],priority[i]);
+            printf("%d    %d     %d     %d\n",id,arrival,runtime,priority);
             i++;
         }
-setPCB(&currentprocess,-1,arrival[i-1]+1,0,0);
+setPCB(&currentprocess,-1,arrival+1,0,0);
 enqueue(&ready,currentprocess,currentprocess.arrivaltime);
  
 

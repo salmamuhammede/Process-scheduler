@@ -15,6 +15,7 @@
     struct PCB send;
 };
   char str[100];
+  int clearFile(const char *filename);
 void writeToFile(const char *filename, int num1, int num2); 
 void handler(int signum);
 void SelectedAlgo(int x , struct PCB com);
@@ -50,11 +51,13 @@ int main(int argc, char * argv[])
     p_num = atoi(argv[3]);
     printf("%d\n",p_num);
     printf("%d\n",atoi(argv[1]));
+    clearFile("output.txt");
+    clearFile("scheduler.log");
    // p_num++;
    int clock = getClk();
     while(p_num)
     {
-        sleep(.1);// to reduce lag
+       // sleep(.1);// to reduce lag
             while ((msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT) != -1) && messagebefore.send.pid != -1)
         {
            // p_num--;
@@ -162,6 +165,21 @@ void handler(int signum){
      p_num--;
      current.state=2;
 printf("handler finished\n");
+printf("*******\n");
+printQueue(&Ready);
+printf("*********\n");
 //printQueue(&Ready);
      
 } 
+int clearFile(const char *filename) {
+    // Open the file in write mode, which truncates it to zero length
+    FILE *file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Failed to open file");
+        return -1;  // Return an error code if the file could not be opened
+    }
+
+    // Closing the file after opening it in write mode clears its contents
+    fclose(file);
+    return 0;  // Return success
+}

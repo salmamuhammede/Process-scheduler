@@ -96,7 +96,7 @@ void printQueue(priorityQueue *queue) {
     const node *current = queue->head;  // Start with the head of the queue
     
     while (current != NULL) {
-        printf("%d\n", current->P.pid);
+        printf("%d    %d\n", current->P.pid,current->P.priority);
         current = current->next;  // Move to the next node
     }
 }
