@@ -24,13 +24,24 @@ int main(int agrc, char * argv[])
     void *shmaddr = shmat(shmid, (void *)0, 0);
     
     //TODO it needs to get the remaining time from somewhere
-    int remainingtime = argv[1];
-    while (remainingtime > 0)
+    int remainingtime = atoi(argv[1]);
+    int y,x = getClk();
+    while (1)
     {
+        sleep(0.1); // to reduce lag
+        y = getClk();
+        if(y!=x){
+            printf("clock: %d\n" ,getClk());
+            x=y;
+            remainingtime--;
+        }
+        if (remainingtime == 0)
+        {
+            printf("process %d finished",getpid());
+            kill(getppid(), SIGUSR1);
+            break;
+        }
         
-        strcpy((char *)shmaddr, itoa(remainingtime--));
-        //strcpy((char *)shmaddr, itoa(remainingtime--));
-
     }
     
     destroyClk(false);

@@ -19,6 +19,7 @@ void setPCB(struct PCB * x,int id,int at,int rt,int pr)
 x->pid=id;
 x->arrivaltime=at;
 x->runningtime=rt;
+x->remainingtime=rt;
 x->priority=pr;
 /*x->turnaroundtime=tta;
 x->waitingtime=wt;

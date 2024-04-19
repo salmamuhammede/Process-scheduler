@@ -52,6 +52,7 @@ int  enqueue(priorityQueue *comming,struct PCB process,int chosen)
     comming->length++;
     return 1;
 }
+
 int enqueue_priority(priorityQueue *comming, struct PCB process) {
     node *currentProcess = (node *)malloc(sizeof(node));
     if (currentProcess == NULL) {
