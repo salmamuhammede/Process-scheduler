@@ -28,16 +28,18 @@ int main(int agrc, char * argv[])
     int y,x = getClk();
     while (1)
     {
-        sleep(0.1); // to reduce lag
+        //sleep(0.1); // to reduce lag
         y = getClk();
         if(y!=x){
             printf("clock: %d\n" ,getClk());
+            printf("finished %d %d\n",getpid(),getppid());
             x=y;
             remainingtime--;
         }
         if (remainingtime == 0)
         {
-            printf("process %d finished",getpid());
+           printf("killed %d %d\n",getpid(),getppid());
+           
             kill(getppid(), SIGUSR1);
             break;
         }

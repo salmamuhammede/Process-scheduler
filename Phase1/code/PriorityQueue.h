@@ -103,21 +103,30 @@ void printQueue(priorityQueue *queue) {
 struct PCB dequeu(priorityQueue *comming)
 {
     struct PCB j;
-    if(comming->length==0)
+    if(comming->length == 0)
     {
         printf("Empty Queue\n");
-        j.pid=-1;
+        j.pid = -1;
         return j;
-    } 
-    else {
-        node* temp=comming->head;
-        j=temp->P; 
-        comming->head=comming->head->next;
-        free(temp);
-        comming->length--;
     }
-    return j;
+    else
+    {
+        node* temp = comming->head;
+        j = temp->P;
+        comming->head = comming->head->next;
+        comming->length--;
+        free(temp);
+
+        // Update tail if head becomes NULL
+        if (comming->head == NULL)
+        {
+            comming->tail = NULL;
+        }
+
+        return j;
+    }
 }
+
 struct PCB top(priorityQueue *comming)
 {
     if(isEmpty(comming)==1)

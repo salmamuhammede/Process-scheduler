@@ -14,14 +14,18 @@
     long msgtype;
     struct PCB send;
 };
+  char str[100];
 void writeToFile(const char *filename, int num1, int num2); 
-void handler();
-
+void handler(int signum);
+void SelectedAlgo(int x , struct PCB com);
+void writeStringToFile(const char* filename, const char* str);
 struct PCB current;
+int p_num;
 priorityQueue Ready;
-
+void HPF();
 int main(int argc, char * argv[])
 {
+    current.state=0;
     signal(SIGUSR1,handler);
     key_t key=ftok("keyfile",'s');
     if (key == -1)
@@ -43,8 +47,10 @@ int main(int argc, char * argv[])
     //upon termination release the clock resources.
     initQueue(&Ready);
     printf("\nreceived %d \n",msqid);
-    int p_num = atoi(argv[3]);
+    p_num = atoi(argv[3]);
     printf("%d\n",p_num);
+    printf("%d\n",atoi(argv[1]));
+   // p_num++;
     while(p_num)
     {
             if ((msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT) != -1) && messagebefore.send.pid != -1)
@@ -52,17 +58,23 @@ int main(int argc, char * argv[])
         // if (rec_val == -1)
         //     perror("error in recieve");
         {
-            p_num--;
-            writeToFile("output.txt",messagebefore.send.pid, getClk());
+           // p_num--;
+            
             SelectedAlgo(atoi(argv[1]),messagebefore.send);
+writeToFile("output.txt",messagebefore.send.pid, getClk());
             // printf("hallo");
            // printf("\nMessage received: %d\n", messagebefore.send.pid);
             
-        }else{
-            
         }
+       
+        if(messagebefore.send.pid!=-1)
+         HPF();
+
+         
     }
-   // destroyClk(true);
+    
+printf("complete\n");
+    destroyClk(true);
     return 0;
 }
 void SelectedAlgo(int x , struct PCB com){
@@ -82,7 +94,40 @@ void SelectedAlgo(int x , struct PCB com){
         //SRTN
 
 }
+void HPF()
+{
+if(current.state!=1&&!isEmpty(&Ready))
+{
+    
+    current=dequeu(&Ready);
+    current.state=1;
+   int wait=getClk()-current.arrivaltime;
+     snprintf(str, sizeof(str),"At time %d process %d started arr %d total %d remain %d wait %d \n",getClk(),current.pid,current.arrivaltime,current.runningtime,current.remainingtime,wait);
+     writeStringToFile("scheduler.log",str);
+     int pid =fork();
+     if(pid==-1)
+     {
+        perror("error in forking ");
+       exit(-1);
+     }
 
+    else if(pid==0)
+    {
+        char timeStr[20]; // assuming a reasonable size
+snprintf(timeStr, sizeof(timeStr), "%d", current.remainingtime);
+char *args[] = {"process.out", timeStr, NULL};
+execv("process.out", args);
+
+    }
+ //int stat;
+//waitpid(-1, &stat, 0); // Waiting for the child process to finish
+
+
+    printf("hallo\n");
+    return;
+
+}
+}
 void writeToFile(const char *filename, int num1, int num2) {
     // Open the file in write mode. Use "a" mode to append if you don't want to overwrite existing data.
     FILE *file = fopen(filename, "a");
@@ -99,7 +144,7 @@ void writeToFile(const char *filename, int num1, int num2) {
 }
 void writeStringToFile(const char* filename, const char* str)
 {
-    FILE* file = fopen(filename, "w");
+    FILE* file = fopen(filename, "a");
     if (file == NULL)
     {
         printf("Failed to open file: %s\n", filename);
@@ -110,8 +155,13 @@ void writeStringToFile(const char* filename, const char* str)
 
     fclose(file);
 }
-void handler(){
+void handler(int signum){
     char str[100];
-     snprintf("At time %d process %d finished arr %d total %d remain %d wait 3 \n",getClk(),current.pid,current.arrivaltime,current.runningtime,current.remainingtime);
+     snprintf(str, sizeof(str),"At time %d process %d finished arr %d total %d remain %d wait 3 \n",getClk(),current.pid,current.arrivaltime,current.runningtime,current.remainingtime);
      writeStringToFile("scheduler.log",str);
+     p_num--;
+     current.state=2;
+printf("handler finished\n");
+//printQueue(&Ready);
+     
 } 

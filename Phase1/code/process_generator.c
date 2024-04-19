@@ -33,14 +33,15 @@ void handler(int signum)
 {
     printf("client ha terminated\n");
     exit(0);
-}   
+} 
+int temp ;  
 int main(int argc, char * argv[])
 {
     signal(SIGINT, clearResources);
     
     // 1. Read the input files.
     int p_num = readFile(argv[1]);
-    algo =atoi(argv[1]);
+    algo =atoi(argv[2]);
     if(argc==4)
     {
         quantuam=atoi(argv[3]);
@@ -63,6 +64,7 @@ int main(int argc, char * argv[])
            execl("./scheduler.out", "scheduler.out", algo_str, quantum_str, p_num_str, (char *) NULL);
             //exit(0);
     }else{
+        temp =pid;
             pid=fork(); 
             // 4. Use this function after creating the clock process to initialize clock
             if(pid==-1)
@@ -120,11 +122,17 @@ int main(int argc, char * argv[])
                             if (y!=x)           
                                 x = y;
                     }
+
                     // TODO Generation Main Loop
                     // 5. Create a data structure for processes and provide it with its parameters.
                     // 6. Send the information to the scheduler at the appropriate time.
                     // 7. Clear clock resources
-                    destroyClk(true);
+                    printf("%d  %d",temp,getpid());
+                   int stat;
+waitpid(temp, &stat, 0); // Waiting for the child process to finish
+
+destroyClk(true); // Destroying clock resource after the child process finishes
+
                     return 0;
             }
         }
