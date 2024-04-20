@@ -22,7 +22,8 @@ void writeStringToFile(const char *filename, const char *str);
 struct PCB current;
 struct PCB dummy;
 int p_num;
-int cur_pid;
+int shmidd;
+int *shmaddrs;
 priorityQueue Ready;
 void HPF();
 int main(int argc, char *argv[])
@@ -30,6 +31,14 @@ int main(int argc, char *argv[])
     current.state = 0;
     int cur_algo = atoi(argv[1]);
     signal(SIGUSR1, handler);
+    key_t keymem = ftok("RT", 'r');
+    shmidd = shmget(keymem, 4, IPC_CREAT | 0644);
+    if (shmidd == -1)
+    {
+        perror("Error in create");
+        exit(-1);
+    }
+    shmaddrs = shmat(shmidd, (void *)0, 0);
     key_t key = ftok("keyfile", 's');
     if (key == -1)
     {
@@ -54,6 +63,7 @@ int main(int argc, char *argv[])
     printf("%d\n", p_num);
     printf("%d\n", atoi(argv[1]));
     // p_num++;
+    writeStringToFile("scheduler.log", "\U00002796\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U00002796\n");
     int clock = getClk();
     while (p_num)
     {
@@ -64,17 +74,18 @@ int main(int argc, char *argv[])
 
             SelectedAlgo(cur_algo, messagebefore.send);
             writeToFile("output.txt", messagebefore.send.pid, getClk());
-            //printQueue(&Ready);
-            // printf("hallo");
-            // printf("\nMessage received: %d\n", messagebefore.send.pid);
+            // printQueue(&Ready);
+            //  printf("hallo");
+            //  printf("\nMessage received: %d\n", messagebefore.send.pid);
         }
-        if      (cur_algo == 2)
+        if (cur_algo == 2)
             HPF();
         else if (cur_algo == 3)
             SRTN();
     }
 
     printf("complete\n");
+    writeStringToFile("scheduler.log", "\U00002705-=FINISHED=-\U00002705\n");
     destroyClk(true);
     return 0;
 }
@@ -106,7 +117,7 @@ void HPF()
         current = dequeu(&Ready);
         current.state = 1;
         int wait = getClk() - current.arrivaltime;
-        snprintf(str, sizeof(str), "At time %d process %d started arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
+        snprintf(str, sizeof(str), "\U0001F31F }---> At time %d process %d \U0001F4AB started \U0001F4AB arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
         writeStringToFile("scheduler.log", str);
         int pid = fork();
         if (pid == -1)
@@ -119,7 +130,7 @@ void HPF()
         {
             char timeStr[20]; // assuming a reasonable size
             snprintf(timeStr, sizeof(timeStr), "%d", current.remainingtime);
-            char *args[] = {"process.out", timeStr, NULL};
+            char *args[] = {"process.out", timeStr, 0, NULL};
             execv("process.out", args);
         }
         // int stat;
@@ -129,68 +140,78 @@ void HPF()
         return;
     }
 }
-int f_b =0;
-int clock =-1;
+int f_b = 0;
+int clock = -1;
 void SRTN()
-{    
+{
     // if (!f_b)
     // {
     //     current=top(&Ready);
     //     f_b =1;
     // }
-    if (current.state != 1 && !isEmpty(&Ready))
+    // if (current.state == 1 && current.remainingtime != *shmaddrs)
+    // {
+    //     printf("\nRT for %d : %d \n", current.acc_pid, *shmaddrs);
+    //     current.remainingtime = *shmaddrs;
+    // }
+    if ((current.state != 1) && !isEmpty(&Ready))
     {
         current = dequeu(&Ready);
-        current.state = 1;
-        int wait = getClk() - current.arrivaltime;
+        printf("hello : %d\n", current.state);
         if (current.runningtime == current.remainingtime)
         {
-            snprintf(str, sizeof(str), "At time %d process %d started arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
+            current.state = 1;
+            int wait = getClk() - current.arrivaltime;
+            snprintf(str, sizeof(str), "\U0001F31F }---> At time %d process %d \U0001F4AB started \U0001F4AB arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
             writeStringToFile("scheduler.log", str);
-                    int pid = fork();
-        if (pid == -1)
-        {
-            perror("error in forking ");
-            exit(-1);
-        }
+            *shmaddrs = current.remainingtime;
+            int pid = fork();
+            if (pid == -1)
+            {
+                perror("error in forking ");
+                exit(-1);
+            }
 
-        else if (pid == 0)
+            else if (pid == 0)
+            {
+                char flag[10], timeStr[20]; // assuming a reasonable size
+                snprintf(timeStr, sizeof(timeStr), "%d", current.remainingtime);
+                snprintf(flag, sizeof(flag), "%d", 1);
+                char *args[] = {"process.out", timeStr, flag, NULL};
+                printf("forked");
+                printf(args);
+                execv("process.out", args);
+            }
+            else
+                current.acc_pid = pid;
+        }
+        else if (current.state == 3)
         {
-            char timeStr[20]; // assuming a reasonable size
-            snprintf(timeStr, sizeof(timeStr), "%d", current.remainingtime);
-            char *args[] = {"process.out", timeStr, NULL};
-            execv("process.out", args);
-        }else
-            cur_pid=pid;
-        }else{
-            snprintf(str, sizeof(str), "At time %d process %d resumed arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
+            snprintf(str, sizeof(str), "\U0001F4A0 }---> At time %d process %d \U0001F47E resumed \U0001F47E arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
-            kill(cur_pid,SIGUSR1);
+            current.state = 1;
+            *shmaddrs = current.remainingtime;
+            kill(current.acc_pid, SIGCONT);
         }
-    
-        // int stat;
-        // waitpid(-1, &stat, 0); // Waiting for the child process to finish
-
-        printf("hallo\n");
         return;
-    }else if (current.state == 1 && !isEmpty(&Ready) && clock!= getClk())
+    }
+    else if (current.state == 1 && !isEmpty(&Ready) && current.remainingtime != *shmaddrs)
     {
-        printf("\n -- \n");
         dummy = top(&Ready);
-        if (dummy.remainingtime<current.remainingtime)
+        current.remainingtime = *shmaddrs;
+        // printf("\n- %d -\n",current.remainingtime);
+        if (dummy.remainingtime < current.remainingtime)
         {
-            kill(cur_pid,SIGUSR1);
-            enqueue(&Ready,current,current.remainingtime);
-            snprintf(str, sizeof(str), "\n At time %d process %d Stopped arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
+            kill(current.acc_pid, SIGSTOP);
+            current.state = 3;
+            enqueue(&Ready, current, current.remainingtime);
+            snprintf(str, sizeof(str), "\U0001F4DB }---> At time %d process %d \U000026D4 Stopped \U000026D4 arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
-            current=dummy;
-            clock = getClk();
+            current = dummy;
+            printQueue(&Ready);
             return;
         }
-        current.remainingtime--;
-        clock = getClk();
     }
-    
 }
 
 void writeToFile(const char *filename, int num1, int num2)
@@ -217,7 +238,6 @@ void writeStringToFile(const char *filename, const char *str)
         printf("Failed to open file: %s\n", filename);
         return;
     }
-
     fprintf(file, "%s", str);
 
     fclose(file);
@@ -225,7 +245,9 @@ void writeStringToFile(const char *filename, const char *str)
 void handler(int signum)
 {
     char str[100];
-    snprintf(str, sizeof(str), "At time %d process %d finished arr %d total %d remain %d wait 3 \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime);
+    current.remainingtime = *shmaddrs;
+    printQueue(&Ready);
+    snprintf(str, sizeof(str), "\U0001F6A9 }---> At time %d process %d \U0001F320 finished \U0001F320 arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
     writeStringToFile("scheduler.log", str);
     p_num--;
     current.state = 2;

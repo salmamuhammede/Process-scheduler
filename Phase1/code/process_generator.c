@@ -8,6 +8,7 @@ int algo;
 int quantuam;
 struct PCB currentprocess;
 struct priorityQueue ready;
+int msqid;
 void writeToFile(const char *filename, int num1, int num2) {
     // Open the file in write mode. Use "a" mode to append if you don't want to overwrite existing data.
     FILE *file = fopen(filename, "a");
@@ -90,7 +91,7 @@ int main(int argc, char * argv[])
                         perror("Error in ftok");
                         exit(-1);
                     }
-                    int msqid=msgget(key,0666|IPC_CREAT);
+                    msqid=msgget(key,0666|IPC_CREAT);
                     if (key == -1)
                     {
                         perror("Error in creating ids");
@@ -188,5 +189,6 @@ enqueue(&ready,currentprocess,currentprocess.arrivaltime);
 }
 void clearResources(int signum)
 {
+    msgctl(msqid, IPC_RMID, (struct msqid_ds *)0);
     //TODO Clears all resources in case of interruption
 }
