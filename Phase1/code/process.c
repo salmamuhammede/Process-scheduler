@@ -2,9 +2,12 @@
 
 /* Modify this file as needed*/
 //Comments Salma :topics req 6 
+int Pause=0;
+void handler(int signum);
 
 int main(int agrc, char * argv[])
 {
+    signal(SIGUSR1, handler);
     initClk();
      key_t keymem = ftok("keyfile", 's');
     if (keymem == -1)
@@ -48,4 +51,9 @@ int main(int agrc, char * argv[])
     destroyClk(false);
     
     return 0;
+}
+void handler(int signum)
+{
+    printf("\npaused\n");
+        pause();
 }
