@@ -272,13 +272,13 @@ void RR()
         else if (current.state == 3) // waitinig
         {
             current.waitingtime += getClk() - current.last;
-            snprintf(str, sizeof(str), "At time %d process %d resumed rr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
+            snprintf(str, sizeof(str), "At time %d process %d resumed arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
             current.state = 1;
             kill(current.acc_pid, SIGCONT);
         }
     }
-    else if (current.state == 1 && current.remainingtime - quantum == *shmaddrs)
+    else if (current.state == 1 && current.remainingtime - quantum == *shmaddrs && !isEmpty(&Ready))
     {
         kill(current.acc_pid, SIGSTOP);
         current.remainingtime = *shmaddrs;
