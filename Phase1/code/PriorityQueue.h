@@ -145,4 +145,29 @@ int isEmpty(priorityQueue * comming)
 {
     return (comming->length==0);
 }
+int enqueuelast(priorityQueue *comming,struct PCB process)
+{
+     node * currentProcess=(node *)malloc(sizeof(node));
+    currentProcess->P=process;
+    currentProcess->alg=0;    
+    currentProcess->next=NULL;
+    if(comming->length==0&&comming->head==NULL&&comming->tail==NULL)
+    {
+        comming->head=comming->tail=currentProcess;
+
+    }
+    
+    else{
+        node *pointer=comming->head;
+        while(pointer!=NULL && pointer->next !=NULL )
+        {
+            pointer=pointer->next;
+        }
+        currentProcess->next=pointer->next;
+        pointer->next=currentProcess;
+
+    }
+    comming->length++;
+    return 1;
+}
 #endif

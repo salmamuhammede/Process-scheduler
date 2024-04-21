@@ -13,6 +13,7 @@ struct PCB
     int state;
     int remainingtime;
     int acc_pid;
+    int last;
 };
 
 void setPCB(struct PCB * x,int id,int at,int rt,int pr)
@@ -24,6 +25,7 @@ x->remainingtime=rt;
 x->priority=pr;
 x->acc_pid=-1;
 x->state=0;
+x->last=0;
 /*x->turnaroundtime=tta;
 x->waitingtime=wt;
 x->remainingtime=rmt;*/

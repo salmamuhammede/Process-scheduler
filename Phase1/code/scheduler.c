@@ -26,11 +26,14 @@ int shmidd;
 int *shmaddrs;
 priorityQueue Ready;
 void HPF();
+void RR();
+int quantum;
 int main(int argc, char *argv[])
 {
     current.state = 0;
     int cur_algo = atoi(argv[1]);
     signal(SIGUSR1, handler);
+    quantum=atoi(argv[2]);
     key_t keymem = ftok("RT", 'r');
     shmidd = shmget(keymem, 4, IPC_CREAT | 0644);
     if (shmidd == -1)
@@ -82,6 +85,10 @@ int main(int argc, char *argv[])
             HPF();
         else if (cur_algo == 3)
             SRTN();
+        else if(cur_algo == 1)
+        {
+            RR();
+        }    
     }
 
     printf("complete\n");
@@ -213,7 +220,67 @@ void SRTN()
         }
     }
 }
+void RR()
+{
+    if ((current.state != 1) && !isEmpty(&Ready))
+    {
+        current = dequeu(&Ready);
+        printf("hello : %d\n", current.state);
+        if (current.runningtime == current.remainingtime)//means at the beggining only
+        {
+            current.state = 1;//running
+            
+            int wait = getClk() - current.arrivaltime; //wait at begining only
+            current.waitingtime+=wait;
+            snprintf(str, sizeof(str), "\U0001F31F }---> At time %d process %d \U0001F4AB started \U0001F4AB arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
+            writeStringToFile("scheduler.log", str);
+            *shmaddrs = current.remainingtime;
+            int pid = fork();
+            if (pid == -1)
+            {
+                perror("error in forking ");
+                exit(-1);
+            }
 
+            else if (pid == 0)
+            {
+                char flag[10], timeStr[20]; // assuming a reasonable size
+                snprintf(timeStr, sizeof(timeStr), "%d", current.remainingtime);
+                snprintf(flag, sizeof(flag), "%d", 1);
+                char *args[] = {"process.out", timeStr, flag, NULL};
+                printf("forked");
+                printf(args);
+                execv("process.out", args);
+            }
+            else
+                current.acc_pid = pid;
+        }    
+            else if(current.state==3)//waitinig
+            {
+                current.waitingtime+=getClk()-current.last;
+                snprintf(str, sizeof(str), "\U0001F4A0 }---> At time %d process %d \U0001F47E resumed \U0001F47E arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
+                writeStringToFile("scheduler.log", str);
+                current.state = 1;
+                
+                kill(current.acc_pid, SIGCONT);                
+            }    
+      }         
+       else if(current.state==1 &&  current.remainingtime-quantum==*shmaddrs)
+        {
+            current.remainingtime = *shmaddrs;     
+            current.last = getClk();     
+           
+            current.state = 3;
+            enqueuelast(&Ready, current);
+            snprintf(str, sizeof(str), "\U0001F4DB }---> At time %d process %d \U000026D4 Stopped \U000026D4 arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
+            writeStringToFile("scheduler.log", str);
+            kill(current.acc_pid, SIGSTOP);
+            current = top(&Ready);
+            //printQueue(&Ready);           
+                   
+        }
+        return;
+}
 void writeToFile(const char *filename, int num1, int num2)
 {
     // Open the file in write mode. Use "a" mode to append if you don't want to overwrite existing data.

@@ -1,0 +1,8 @@
+➖🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰🟰➖
+🌟 }---> At time 0 process 1 💫 started 💫 arr 0 total 2 remain 2 wait 0 
+🚩 }---> At time 2 process 1 🌠 finished 🌠 arr 0 total 2 remain 0 wait 0 
+🌟 }---> At time 2 process 3 💫 started 💫 arr 2 total 3 remain 3 wait 0 
+🚩 }---> At time 5 process 3 🌠 finished 🌠 arr 2 total 3 remain 0 wait 0 
+🌟 }---> At time 5 process 2 💫 started 💫 arr 1 total 4 remain 4 wait 4 
+🚩 }---> At time 9 process 2 🌠 finished 🌠 arr 1 total 4 remain 0 wait 0 
+✅-=FINISHED=-✅
