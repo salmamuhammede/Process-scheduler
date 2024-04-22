@@ -110,6 +110,7 @@ int main(int argc, char * argv[])
                     y=getClk();
                     while((sent.arrivaltime==x)&&(isEmpty(&ready)!= 1))
                         {
+                            
                             sent = dequeu(&ready);
                             //printf("\nsent %d\n",msqid);
                             //writeToFile("output.txt",sent.pid,1);
@@ -120,16 +121,30 @@ int main(int argc, char * argv[])
                             
                             sent=top(&ready);
                         }
+                        
+                         struct PCB dummy;
+                        dummy.pid=-1;
+                        messagebefore.send=dummy;
+                        send_val = msgsnd(msqid, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
+                            if (send_val == -1)
+                            perror("Error in send");
                             if (y!=x)           
                                 x = y;
-                    }
 
+                    }
+ struct PCB dummy;
+                        dummy.pid=-2;
+                        messagebefore.send=dummy;
+                        send_val = msgsnd(msqid, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
+                            if (send_val == -1)
+                            perror("Error in send");
                     // TODO Generation Main Loop
                     // 5. Create a data structure for processes and provide it with its parameters.
                     // 6. Send the information to the scheduler at the appropriate time.
                     // 7. Clear clock resources
                     printf("%d  %d",temp,getpid());
                    int stat;
+                   printf("\npgfinished\n");
 waitpid(temp, &stat, 0); // Waiting for the child process to finish
 
 destroyClk(true); // Destroying clock resource after the child process finishes

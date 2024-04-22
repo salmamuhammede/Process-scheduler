@@ -33,10 +33,13 @@ int quantum;
 int Final_time, TA, Total_running = 0;
 float WTA, Avg_WTA = 0, Avg_waiting = 0, STD_WTA;
 float *WTAArr;
+int cur_algo;
+struct msgbuff messagebefore;
+int msqid;
 int main(int argc, char *argv[])
 {
     current.state = 0;
-    int cur_algo = atoi(argv[1]);
+    cur_algo = atoi(argv[1]);
     signal(SIGUSR1, handler);
     quantum = atoi(argv[2]);
     key_t keymem = ftok("RT", 'r');
@@ -53,14 +56,14 @@ int main(int argc, char *argv[])
         perror("Error in ftok");
         exit(-1);
     }
-    int msqid = msgget(key, 0666 | IPC_CREAT);
+    msqid = msgget(key, 0666 | IPC_CREAT);
     if (key == -1)
     {
         perror("Error in creating ids");
         exit(-1);
     }
     int rec_val;
-    struct msgbuff messagebefore;
+
     initClk();
 
     // TODO implement the scheduler :)
@@ -69,7 +72,7 @@ int main(int argc, char *argv[])
     printf("\nreceived %d \n", msqid);
     p_num = atoi(argv[3]);
     Ori_p_num = p_num;
-    WTAArr = (float*)malloc(p_num * sizeof(int));
+    WTAArr = (float *)malloc(p_num * sizeof(int));
     printf("%d\n", p_num);
     printf("%d\n", atoi(argv[1]));
     system("rm scheduler.log");
@@ -77,28 +80,64 @@ int main(int argc, char *argv[])
     // p_num++;
     // writeStringToFile("scheduler.log", "\U00002796\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U00002796\n");
     int clock = getClk();
+    int time = -1;
+    int flag=0;
+        
     while (p_num)
     {
-        sleep(.1); // to reduce lag
-        while ((msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT) != -1) && messagebefore.send.pid != -1)
-        {
+        // sleep(.1); // to reduce lag
+int num=0;
+while(1)
+{
+        msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT) ;
+        
+            
+            if (messagebefore.send.pid != -1&&messagebefore.send.pid != -2)
             // p_num--;
 
-            SelectedAlgo(cur_algo, messagebefore.send);
-            writeToFile("output.txt", messagebefore.send.pid, getClk());
+            {
+                SelectedAlgo(cur_algo, messagebefore.send);
+                writeToFile("output.txt", messagebefore.send.pid, getClk());
+            }
+            if(messagebefore.send.pid==-2)
+            {
+                flag=1;
+                break;
+            }
+            if (cur_algo == 2)
+                HPF();
+            else if (cur_algo == 3)
+                SRTN();
+            else if (cur_algo == 1)
+            {
+                RR();
+            }
+            num++;
+            if(messagebefore.send.pid==-1)
+           { 
+            if(num==1)
+            {
+                printf("%d",num);
+                break;
+            }
+            }
             // printQueue(&Ready);
             //  printf("hallo");
             //  printf("\nMessage received: %d\n", messagebefore.send.pid);
         }
-        if (cur_algo == 2)
-            HPF();
-        else if (cur_algo == 3)
-            SRTN();
-        else if (cur_algo == 1)
+        if(flag==1)
         {
-            RR();
+             if (cur_algo == 2)
+                HPF();
+            else if (cur_algo == 3)
+                SRTN();
+            else if (cur_algo == 1)
+            {
+                RR();
+            }  
         }
     }
+
     Final_time = getClk();
     Finish();
     printf("complete\n");
@@ -180,7 +219,7 @@ void SRTN()
         {
             current.state = 1;
             int wait = getClk() - current.arrivaltime;
-            current.waitingtime=wait;
+            current.waitingtime = wait;
             snprintf(str, sizeof(str), "At time %d process %d started arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
             writeStringToFile("scheduler.log", str);
             *shmaddrs = current.remainingtime;
@@ -329,7 +368,7 @@ void handler(int signum)
     printQueue(&Ready);
     TA = FT - current.arrivaltime;
     WTA = TA / (float)current.runningtime;
-    WTAArr[Ori_p_num-p_num] = WTA;
+    WTAArr[Ori_p_num - p_num] = WTA;
     snprintf(str, sizeof(str), "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n", FT, current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime, TA, WTA);
     writeStringToFile("scheduler.log", str);
     Avg_WTA += (WTA / Ori_p_num);
@@ -339,6 +378,7 @@ void handler(int signum)
     current.state = 2;
 
     printf("handler finished\n");
+
     // printQueue(&Ready);
 }
 void Finish()
@@ -354,7 +394,7 @@ void Finish()
     {
         SD += pow((WTAArr[i] - mean), 2);
     }
-    STD_WTA = sqrt(SD / (float) Ori_p_num);
+    STD_WTA = sqrt(SD / (float)Ori_p_num);
     float CPU_UTI = (1 - ((Final_time - Total_running) / (float)Final_time)) * 100;
     snprintf(str, sizeof(str), "CPU utilization = %.2f\nAvg WTA = %.2f\nAvg Waiting = %.2f\nStd WTA = %.2f\n", CPU_UTI, Avg_WTA, Avg_waiting, current.runningtime, STD_WTA);
     writeStringToFile("scheduler.perf", str);
