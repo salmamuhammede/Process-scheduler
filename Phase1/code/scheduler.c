@@ -16,19 +16,24 @@ struct msgbuff
     long msgtype;
     struct PCB send;
 };
-char str[100];
 void writeToFile(const char *filename, int num1, int num2);
 void handler(int signum);
 void SelectedAlgo(int x, struct PCB com);
 void writeStringToFile(const char *filename, const char *str);
+void clearResources();
+void HPF();
+void RR();
+void SRTN();
+////////////////////////////////
 struct PCB current;
+struct PCB rec;
 struct PCB dummy;
+char str[100];
 int p_num, Ori_p_num;
 int shmidd;
 int *shmaddrs;
 priorityQueue Ready;
-void HPF();
-void RR();
+
 int quantum;
 int Final_time, TA, Total_running = 0;
 float WTA, Avg_WTA = 0, Avg_waiting = 0, STD_WTA;
@@ -39,9 +44,11 @@ int msqid;
 int main(int argc, char *argv[])
 {
     current.state = 0;
-    cur_algo = atoi(argv[1]);
-    signal(SIGUSR1, handler);
+    cur_algo = atoi(argv[1]);    
     quantum = atoi(argv[2]);
+    ///////////////////////////
+    signal(SIGUSR1, handler);
+    /////////////////////////////////////////////
     key_t keymem = ftok("RT", 'r');
     shmidd = shmget(keymem, 4, IPC_CREAT | 0644);
     if (shmidd == -1)
@@ -50,6 +57,7 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     shmaddrs = shmat(shmidd, (void *)0, 0);
+    ////////////////////////////////////msqqueue
     key_t key = ftok("keyfile", 's');
     if (key == -1)
     {
@@ -63,45 +71,43 @@ int main(int argc, char *argv[])
         exit(-1);
     }
     int rec_val;
-
-    initClk();
-
-    // TODO implement the scheduler :)
-    // upon termination release the clock resources.
-    initQueue(&Ready);
-    printf("\nreceived %d \n", msqid);
-    p_num = atoi(argv[3]);
+     p_num = atoi(argv[3]);
     Ori_p_num = p_num;
     WTAArr = (float *)malloc(p_num * sizeof(int));
     printf("%d\n", p_num);
     printf("%d\n", atoi(argv[1]));
+
+    initClk();
+    // TODO implement the scheduler :)
+    // upon termination release the clock resources.
+    initQueue(&Ready);
+    printf("\nreceived %d \n", msqid);
+   
     system("rm scheduler.log");
     system("rm scheduler.perf");
-    // p_num++;
-    // writeStringToFile("scheduler.log", "\U00002796\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U00002796\n");
+    
     int clock = getClk();
     int time = -1;
-    int flag=0;
-        
-    while (p_num)
+    int flag = 0;
+
+    /*while (p_num)
     {
         // sleep(.1); // to reduce lag
-int num=0;
-while(1)
-{
-        msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT) ;
-        
-            
-            if (messagebefore.send.pid != -1&&messagebefore.send.pid != -2)
+        int num = 0;
+        while (1)
+        {
+            msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT);
+
+            if (messagebefore.send.pid != -1 && messagebefore.send.pid != -2)
             // p_num--;
 
             {
                 SelectedAlgo(cur_algo, messagebefore.send);
                 writeToFile("output.txt", messagebefore.send.pid, getClk());
             }
-            if(messagebefore.send.pid==-2)
+            if (messagebefore.send.pid == -2)
             {
-                flag=1;
+                flag = 1;
                 break;
             }
             if (cur_algo == 2)
@@ -113,35 +119,63 @@ while(1)
                 RR();
             }
             num++;
-            if(messagebefore.send.pid==-1)
-           { 
-            if(num==1)
+            if (messagebefore.send.pid == -1)
             {
-                printf("%d",num);
-                break;
-            }
+                if (num == 1)
+                {
+                    printf("%d", num);
+                    break;
+                }
             }
             // printQueue(&Ready);
             //  printf("hallo");
             //  printf("\nMessage received: %d\n", messagebefore.send.pid);
         }
-        if(flag==1)
+        if (flag == 1)
         {
-             if (cur_algo == 2)
+            if (cur_algo == 2)
                 HPF();
             else if (cur_algo == 3)
                 SRTN();
             else if (cur_algo == 1)
             {
                 RR();
-            }  
+            }
+        }
+    }*/
+    ////////////////////////////////////////////////->>>>>>>>>>>>>>>>>>>>>>>>>
+    while(p_num)
+    {
+        if(time!=getClk)
+        {
+            time=getClk();
+            while(msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT)!=-1)
+            {
+                rec=messagebefore.send;
+                if(rec.pid!=-1){
+                SelectedAlgo(cur_algo, rec);
+                writeToFile("output.txt", rec.pid, getClk());
+                printf("********************************\n");
+                printQueue(&Ready);
+                printf("********************************\n");
+                }
+            }
+            if (cur_algo == 2)
+                HPF();
+            else if (cur_algo == 3)
+                SRTN();
+            else if (cur_algo == 1)
+            {
+                RR();
+            }
         }
     }
-
+/////////////////////////////////////////////////////////////////////
     Final_time = getClk();
     Finish();
-    printf("complete\n");
-    // writeStringToFile("scheduler.log", "\U00002705-=FINISHED=-\U00002705\n");
+    clearResources();
+    kill(getpgrp,SIGINT);
+    printf("complete\n");    
     destroyClk(true);
     return 0;
 }
@@ -149,7 +183,7 @@ void SelectedAlgo(int x, struct PCB com)
 {
     if (x == 1)
     {
-        enqueue(&Ready, com, com.arrivaltime);
+        enqueue(&Ready, com, quantum);
     }
     // RR
 
@@ -167,9 +201,11 @@ void SelectedAlgo(int x, struct PCB com)
 }
 void HPF()
 {
-    if (current.state != 1 && !isEmpty(&Ready))
+    if (current.state != 1 )
     {
-
+        if(isEmpty(&Ready)==1)
+        return;
+        
         current = dequeu(&Ready);
         current.state = 1;
         int wait = getClk() - current.arrivaltime;
@@ -192,8 +228,12 @@ void HPF()
         }
         // int stat;
         // waitpid(-1, &stat, 0); // Waiting for the child process to finish
+        else
+        {
+            current.acc_pid=pid;
+        }
 
-        printf("hallo\n");
+        //printf("hallo\n");
         return;
     }
 }
@@ -398,4 +438,9 @@ void Finish()
     float CPU_UTI = (1 - ((Final_time - Total_running) / (float)Final_time)) * 100;
     snprintf(str, sizeof(str), "CPU utilization = %.2f\nAvg WTA = %.2f\nAvg Waiting = %.2f\nStd WTA = %.2f\n", CPU_UTI, Avg_WTA, Avg_waiting, current.runningtime, STD_WTA);
     writeStringToFile("scheduler.perf", str);
+}
+void clearResources()
+{
+    msgctl(msqid, IPC_RMID, (struct msqid_ds *)0);
+    msgctl(shmidd, IPC_RMID, (struct msqid_ds *)0);
 }
