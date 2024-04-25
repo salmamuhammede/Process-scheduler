@@ -329,8 +329,11 @@ void RR()
             current.waitingtime += getClk() - current.last;
             snprintf(str, sizeof(str), "At time %d process %d resumed arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
-            current.state = 1;
+            current.state = 1;            
             kill(current.acc_pid, SIGCONT);
+            (*shmaddrs) = current.remainingtime;
+            
+
         }
     }
     else if (current.state == 1   &&isEmpty(&Ready)!=1&&current.begin-quantum==current.remainingtime)
