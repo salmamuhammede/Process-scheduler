@@ -106,13 +106,15 @@ int main(int argc, char *argv[])
             messagebefore.msgtype = 1;
             int y;
             sent = top(&ready);
-
+            int time = -1;
+            int flag = 0;
+            int flag2=0;
             while ((isEmpty(&ready) != 1))
             {
 
                 //  printf("\nin first while x = %d\n",getClk());
-                y = getClk();
-                while ((sent.arrivaltime == x) && (isEmpty(&ready) != 1))
+                
+                while ((sent.arrivaltime == getClk()) && (isEmpty(&ready) != 1))
                 {
                     sent = dequeu(&ready);
                     // printf("\nsent %d\n",msqid);
@@ -122,7 +124,33 @@ int main(int argc, char *argv[])
                     if (send_val == -1)
                         perror("Error in send");
 
+                    if (messagebefore.send.pid == -1)
+                        flag = 1;
                     sent = top(&ready);
+                    flag2=1;
+                }
+                
+                if (time != getClk() && flag != 1&&flag2)
+                {
+                    time = getClk();
+                    struct PCB dummy;
+                    dummy.pid = -1;
+                    messagebefore.send = dummy;
+                    send_val = msgsnd(msqid, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
+                    if (send_val == -1)
+                        perror("Error in send");
+                    flag2=0;
+                }
+                if (flag == 1 && time != getClk()&&flag2)
+                {
+                    time = getClk();
+                    struct PCB dummy;
+                    dummy.pid = -2;
+                    messagebefore.send = dummy;
+                    send_val = msgsnd(msqid, &messagebefore, sizeof(messagebefore.send), !IPC_NOWAIT);
+                    if (send_val == -1)
+                        perror("Error in send");
+                    flag2=0;    
                 }
                 if (y != x)
                     x = y;
@@ -166,8 +194,22 @@ int readFile(char *filename)
             currentprocess.priority = priority;
             currentprocess.pid = id;
             setPCB(&currentprocess, id, arrival, runtime, priority);
+            struct PCB dummy1;
+            if(i>0)
+            {
+                
+                for(int j=dummy1.arrivaltime+1;j<currentprocess.arrivaltime;j++)
+                {
+                    struct PCB dummy2;
+                    dummy2.arrivaltime=j;
+                    dummy2.pid=-3;
+                    enqueue(&ready, dummy2, dummy2.arrivaltime);
+                    printf("%d    %d     %d     %d\n", dummy2.pid, dummy2.arrivaltime, runtime, priority);//
+                }
+            }
             enqueue(&ready, currentprocess, currentprocess.arrivaltime);
             printf("%d    %d     %d     %d\n", id, arrival, runtime, priority);
+            dummy1=currentprocess;
             i++;
         }
         setPCB(&currentprocess, -1, arrival + 1, 0, 0);

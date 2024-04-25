@@ -81,22 +81,29 @@ int main(int argc, char *argv[])
     // p_num++;
     // writeStringToFile("scheduler.log", "\U00002796\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U00002796\n");
     clock = getClk();
+    int time=-1;
+    int flag=0;
     while (p_num)
     {
-        sleep(.1); // to reduce lag
-        while ((msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT) != -1) && messagebefore.send.pid != -1)
+        //sleep(.1); // to reduce lag
+        if(time!=getClk())
+        {
+            time=getClk();
+            //printf("****%d\n",getClk());
+        while (!flag&&(msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT) != -1) && messagebefore.send.pid != -1&&messagebefore.send.pid!=-2)
         {
             // p_num--;
-            //if(findQuick(&Ready,messagebefore.send)==0)
-
-            SelectedAlgo(cur_algo, messagebefore.send);
-            rec=messagebefore.send;
-            printf("\nfrom loop %d--%d--%d\n",rec.pid,rec.arrivaltime,getClk());
+printf("****%d**********%d\n",getClk(),messagebefore.send.pid);
+if(messagebefore.send.pid!=-3)
+           { SelectedAlgo(cur_algo, messagebefore.send);
             writeToFile("output.txt", messagebefore.send.pid, getClk());
+            rec=messagebefore.send;
+            }
             // printQueue(&Ready);
             //  printf("hallo");
             //  printf("\nMessage received: %d\n", messagebefore.send.pid);
         }
+printf("######%d#############%d\n",getClk(),messagebefore.send.pid);
         if (cur_algo == 2)
             HPF();
         else if (cur_algo == 3)
@@ -105,13 +112,17 @@ int main(int argc, char *argv[])
         {
             RR();
         }
+        if(messagebefore.send.pid==-2)
+        {
+flag=1;
+        }
+        }
     }
     Final_time = getClk();
     Finish();
-    msgctl(msqid, IPC_RMID, (struct msqid_ds *)0);
-    msgctl(shmidd, IPC_RMID, (struct msqid_ds *)0);
     printf("complete\n");
-    // writeStringToFile("scheduler.log", "\U00002705-=FINISHED=-\U00002705\n");
+    msgctl(msqid, IPC_RMID, (struct msqid_ds *)0);
+    //msgctl(shmaddrs, IPC_RMID, (struct msqid_ds *)0);
     destroyClk(true);
     return 0;
 }
@@ -252,7 +263,6 @@ void SRTN()
         // printf("\n- %d -\n",current.remainingtime);
         if (dummy.remainingtime < current.remainingtime)
         {
-
             kill(current.acc_pid, SIGSTOP);
             current.state = 3;
             current.last = getClk();
@@ -260,6 +270,7 @@ void SRTN()
             snprintf(str, sizeof(str), "At time %d process %d Stopped arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
             current = dummy;
+            SRTN();
             //printQueue(&Ready);
             return;
         }
@@ -338,7 +349,7 @@ void RR()
         if(findQuick(&Ready,rec)==0)
         {
             printf("\nunique2\n");
-        enqueue(&Ready, rec,rec.arrivaltime);
+        enqueue(&Ready, rec,getClk());
        }
        }
         current.last = getClk();
@@ -351,6 +362,7 @@ void RR()
         printf("********************************\n");
          printQueue(&Ready);
            printf("********************************\n");
+           RR();
     }
     return;
 }
