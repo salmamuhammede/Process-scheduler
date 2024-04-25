@@ -283,26 +283,26 @@ void RR()
         if (current.state == 1)
         {
             current.remainingtime--;
-            *shmaddrs = current.remainingtime;
-            printf("RT FROM algo : %d",current.remainingtime);
+            (*shmaddrs) = current.remainingtime;
+            printf("RT FROM algo : %d\n",current.remainingtime);
         }
         clock = getClk(); 
     }
     
-    if ((current.state != 1) && !isEmpty(&Ready))
+    if ((current.state != 1) && isEmpty(&Ready)!=1)
     {
         current = dequeu(&Ready);
-        printf("hello : %d\n", current.state);
-        if (current.runningtime == current.remainingtime) // means at the beggining only
+        //printf("hello : %d\n", current.state);
+        if (current.state==0) // means at the beggining only
         {
             
             current.state = 1; // running
 
             int wait = getClk() - current.arrivaltime; // wait at begining only
             current.waitingtime += wait;
-            snprintf(str, sizeof(str), "At time %d process %d started arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, wait);
+            snprintf(str, sizeof(str), "At time %d process %d started arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
-            *shmaddrs = current.remainingtime;
+            (*shmaddrs) = current.remainingtime;
             int pid = fork();
             if (pid == -1)
             {
@@ -335,9 +335,10 @@ void RR()
     }
     else if (current.state == 1   &&isEmpty(&Ready)!=1&&current.begin-quantum==current.remainingtime)
     {
-      
+      if(current.begin-quantum==0)
+      return;
         kill(current.acc_pid, SIGSTOP);
-       // current.remainingtime = *shmaddrs;
+        (*shmaddrs)=current.remainingtime;
        printf("\nunique  %d %d\n",rec.arrivaltime,getClk());
        if(rec.pid!=-1&&rec.arrivaltime==getClk())
        {
@@ -353,9 +354,9 @@ void RR()
        }
        }
         current.last = getClk();
-        current.begin=current.remainingtime;
+        current.begin-=quantum;
         current.state = 3;
-        enqueuelast(&Ready, current);
+        enqueue(&Ready, current,getClk());
         snprintf(str, sizeof(str), "At time %d process %d Stopped arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
         writeStringToFile("scheduler.log", str);
         current = top(&Ready);
