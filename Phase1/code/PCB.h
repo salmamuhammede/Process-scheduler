@@ -8,7 +8,7 @@ struct PCB
     int runningtime;
     int priority;
     int turnaroundtime;
-    
+    int begin;
     int waitingtime;
     int state;
     int remainingtime;
@@ -26,6 +26,7 @@ x->priority=pr;
 x->acc_pid=-1;
 x->state=0;
 x->last=0;
+x->begin=rt;
 /*x->turnaroundtime=tta;
 x->waitingtime=wt;
 x->remainingtime=rmt;*/

@@ -24,6 +24,7 @@ void SelectedAlgo(int x, struct PCB com);
 void writeStringToFile(const char *filename, const char *str);
 struct PCB current;
 struct PCB dummy;
+struct PCB rec;
 int p_num, Ori_p_num;
 int shmidd;
 int *shmaddrs;
@@ -86,8 +87,11 @@ int main(int argc, char *argv[])
         while ((msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, IPC_NOWAIT) != -1) && messagebefore.send.pid != -1)
         {
             // p_num--;
+            //if(findQuick(&Ready,messagebefore.send)==0)
 
             SelectedAlgo(cur_algo, messagebefore.send);
+            rec=messagebefore.send;
+            printf("\nfrom loop %d--%d--%d\n",rec.pid,rec.arrivaltime,getClk());
             writeToFile("output.txt", messagebefore.send.pid, getClk());
             // printQueue(&Ready);
             //  printf("hallo");
@@ -104,6 +108,8 @@ int main(int argc, char *argv[])
     }
     Final_time = getClk();
     Finish();
+    msgctl(msqid, IPC_RMID, (struct msqid_ds *)0);
+    msgctl(shmidd, IPC_RMID, (struct msqid_ds *)0);
     printf("complete\n");
     // writeStringToFile("scheduler.log", "\U00002705-=FINISHED=-\U00002705\n");
     destroyClk(true);
@@ -246,6 +252,7 @@ void SRTN()
         // printf("\n- %d -\n",current.remainingtime);
         if (dummy.remainingtime < current.remainingtime)
         {
+
             kill(current.acc_pid, SIGSTOP);
             current.state = 3;
             current.last = getClk();
@@ -277,6 +284,7 @@ void RR()
         printf("hello : %d\n", current.state);
         if (current.runningtime == current.remainingtime) // means at the beggining only
         {
+            
             current.state = 1; // running
 
             int wait = getClk() - current.arrivaltime; // wait at begining only
@@ -306,6 +314,7 @@ void RR()
         }
         else if (current.state == 3) // waitinig
         {
+            
             current.waitingtime += getClk() - current.last;
             snprintf(str, sizeof(str), "At time %d process %d resumed arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
@@ -313,17 +322,35 @@ void RR()
             kill(current.acc_pid, SIGCONT);
         }
     }
-    else if (current.state == 1   &&!isEmpty(&Ready))
+    else if (current.state == 1   &&isEmpty(&Ready)!=1&&current.begin-quantum==current.remainingtime)
     {
+      
         kill(current.acc_pid, SIGSTOP);
        // current.remainingtime = *shmaddrs;
+       printf("\nunique  %d %d\n",rec.arrivaltime,getClk());
+       if(rec.pid!=-1&&rec.arrivaltime==getClk())
+       {
+        printf("\nunique  %d\n",rec.pid);
+        printf("********************************\n");
+         printQueue(&Ready);
+           printf("********************************\n");
+        printf("\nunique2 %d\n",findQuick(&Ready,rec));
+        if(findQuick(&Ready,rec)==0)
+        {
+            printf("\nunique2\n");
+        enqueue(&Ready, rec,rec.arrivaltime);
+       }
+       }
         current.last = getClk();
+        current.begin=current.remainingtime;
         current.state = 3;
         enqueuelast(&Ready, current);
         snprintf(str, sizeof(str), "At time %d process %d Stopped arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
         writeStringToFile("scheduler.log", str);
         current = top(&Ready);
-        // printQueue(&Ready);
+        printf("********************************\n");
+         printQueue(&Ready);
+           printf("********************************\n");
     }
     return;
 }

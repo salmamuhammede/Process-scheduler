@@ -22,7 +22,23 @@ void initQueue(priorityQueue * comming)
   
 }
 
-
+int findQuick(priorityQueue *comming,struct PCB process)
+{
+    if(isEmpty(comming)==1)
+    return 0;  
+    node *pointer=comming->head;
+        while(pointer!=NULL && pointer->next !=NULL && process.pid!=pointer->P.pid&&process.arrivaltime!=pointer->P.arrivaltime)
+        {
+            ///printf("headpid %d\n",pointer->P.pid);
+            pointer=pointer->next;
+        }   
+        if(pointer==NULL)
+        return 0;
+        else{
+            printf("headpid %d\n",pointer->P.pid);
+                   return 1; 
+        }
+}
 int  enqueue(priorityQueue *comming,struct PCB process,int chosen)
 {
     node * currentProcess=(node *)malloc(sizeof(node));
@@ -96,7 +112,7 @@ void printQueue(priorityQueue *queue) {
     const node *current = queue->head;  // Start with the head of the queue
     
     while (current != NULL) {
-        printf("%d    %d\n", current->P.pid,current->P.state);
+        printf("%d    %d\n", current->P.pid,current->P.begin);
         current = current->next;  // Move to the next node
     }
 }
