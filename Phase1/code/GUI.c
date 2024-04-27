@@ -124,11 +124,12 @@ int quantum;
     snprintf(commmand,sizeof(commmand),"./process_generator.out \"%s\" %d %d",process_info,selected_algorithm,quantum);
     system(commmand);
     // Generate image with selected information
-    int stat
+    /*int stat
     key_t p;
     do{
-    p=waitpid(-1,&stat,0);
-    }while(p==0);
+    p=waitpid(-1,&stat,WNOHANG);
+    }while(p==0);*/
+    sleep(20);
 
     create_image_from_text("scheduler.log", "image1.png");
 
