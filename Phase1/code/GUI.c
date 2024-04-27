@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cairo.h>
+#include "headers.h" 
 
 typedef struct {
     GtkComboBox *combobox;
@@ -10,10 +11,7 @@ typedef struct {
     GtkWidget *quantum_entry; // Entry field for quantum value
 } Widgets;
 
-#include <gtk/gtk.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <cairo.h>
+
 
 void create_image_from_text(const char *input_file, const char *output_file) {
     // Open the text file for reading
@@ -115,16 +113,19 @@ void on_button_clicked(GtkWidget *widget, gpointer data) {
     // Get text input from the entry field
     GtkEntry *entry = widgets->entry;
     const char *process_info = gtk_entry_get_text(entry);
-
+int quantum;
     // If RR is selected, also get the quantum value
     if (selected_algorithm == 1) { // 1 corresponds to "RR"
         const char *quantum_str = gtk_entry_get_text(GTK_ENTRY(widgets->quantum_entry));
-        int quantum = atoi(quantum_str);
+        quantum = atoi(quantum_str);
         // Now you have the quantum value, you can use it as needed
     }
-
+    chat commmand[300];
+    snprintf(commmand,sizeof(commmand),"./process_generator.out \"%s\" %d %d",process_info,selected_algorithm,quantum);
+    system(commmand);
     // Generate image with selected information
-    create_image_from_text(process_info, "image.png");
+    create_image_from_text("scheduler.log", "image1.png");
+    create_image_from_text("scheduler.pref", "image2.png");
 }
 
 int main(int argc, char *argv[]) {

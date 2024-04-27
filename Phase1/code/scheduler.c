@@ -81,48 +81,49 @@ int main(int argc, char *argv[])
     // p_num++;
     // writeStringToFile("scheduler.log", "\U00002796\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U00002796\n");
     clock = getClk();
-    int time=-1;
-    int flag=0;
+    int time = -1;
+    int flag = 0;
     while (p_num)
     {
-        //sleep(.1); // to reduce lag
-        if(time!=getClk())
+        // sleep(.1); // to reduce lag
+        if (time != getClk())
         {
-            time=getClk();
-            //printf("****%d\n",getClk());
-        while (!flag&&(msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT) != -1) && messagebefore.send.pid != -1&&messagebefore.send.pid!=-2)
-        {
-            // p_num--;
-printf("****%d**********%d\n",getClk(),messagebefore.send.pid);
-if(messagebefore.send.pid!=-3)
-           { SelectedAlgo(cur_algo, messagebefore.send);
-            writeToFile("output.txt", messagebefore.send.pid, getClk());
-            rec=messagebefore.send;
+            time = getClk();
+            // printf("****%d\n",getClk());
+            while (!flag && (msgrcv(msqid, &messagebefore, sizeof(messagebefore.send), 0, !IPC_NOWAIT) != -1) && messagebefore.send.pid != -1 && messagebefore.send.pid != -2)
+            {
+                // p_num--;
+                printf("****%d**********%d\n", getClk(), messagebefore.send.pid);
+                if (messagebefore.send.pid != -3)
+                {
+                    SelectedAlgo(cur_algo, messagebefore.send);
+                    writeToFile("output.txt", messagebefore.send.pid, getClk());
+                    rec = messagebefore.send;
+                }
+                // printQueue(&Ready);
+                //  printf("hallo");
+                //  printf("\nMessage received: %d\n", messagebefore.send.pid);
             }
-            // printQueue(&Ready);
-            //  printf("hallo");
-            //  printf("\nMessage received: %d\n", messagebefore.send.pid);
-        }
-printf("######%d#############%d\n",getClk(),messagebefore.send.pid);
-        if (cur_algo == 2)
-            HPF();
-        else if (cur_algo == 3)
-            SRTN();
-        else if (cur_algo == 1)
-        {
-            RR();
-        }
-        if(messagebefore.send.pid==-2)
-        {
-flag=1;
-        }
+            printf("######%d#############%d\n", getClk(), messagebefore.send.pid);
+            if (cur_algo == 2)
+                HPF();
+            else if (cur_algo == 3)
+                SRTN();
+            else if (cur_algo == 1)
+            {
+                RR();
+            }
+            if (messagebefore.send.pid == -2)
+            {
+                flag = 1;
+            }
         }
     }
     Final_time = getClk();
     Finish();
     printf("complete\n");
     msgctl(msqid, IPC_RMID, (struct msqid_ds *)0);
-    //msgctl(shmaddrs, IPC_RMID, (struct msqid_ds *)0);
+    shmctl(shmaddrs, IPC_RMID, (struct shmid_ds *)0);
     destroyClk(true);
     return 0;
 }
@@ -148,17 +149,17 @@ void SelectedAlgo(int x, struct PCB com)
 }
 void HPF()
 {
-        if (clock != getClk())
+    if (clock != getClk())
     {
         if (current.state == 1)
         {
             current.remainingtime--;
             *shmaddrs = current.remainingtime;
-            printf("RT FROM algo : %d",current.remainingtime);
+            printf("RT FROM algo : %d", current.remainingtime);
         }
-        clock = getClk(); 
+        clock = getClk();
     }
-    
+
     if (current.state != 1 && !isEmpty(&Ready))
     {
         current = dequeu(&Ready);
@@ -208,15 +209,15 @@ void SRTN()
         {
             current.remainingtime--;
             *shmaddrs = current.remainingtime;
-            printf("RT FROM algo : %d",current.remainingtime);
+            printf("RT FROM algo : %d", current.remainingtime);
         }
-        clock = getClk(); 
+        clock = getClk();
     }
-    
+
     if ((current.state != 1) && !isEmpty(&Ready))
     {
         current = dequeu(&Ready);
-        //printf("hello : %d\n", current.state);
+        // printf("hello : %d\n", current.state);
         if (current.runningtime == current.remainingtime)
         {
             current.state = 1;
@@ -238,7 +239,7 @@ void SRTN()
                 snprintf(timeStr, sizeof(timeStr), "%d", current.remainingtime);
                 snprintf(flag, sizeof(flag), "%d", 1);
                 char *args[] = {"process.out", timeStr, flag, NULL};
-                //printf("forked");
+                // printf("forked");
                 printf(args);
                 execv("process.out", args);
             }
@@ -271,7 +272,7 @@ void SRTN()
             writeStringToFile("scheduler.log", str);
             current = dummy;
             SRTN();
-            //printQueue(&Ready);
+            // printQueue(&Ready);
             return;
         }
     }
@@ -284,18 +285,18 @@ void RR()
         {
             current.remainingtime--;
             (*shmaddrs) = current.remainingtime;
-            printf("RT FROM algo : %d\n",current.remainingtime);
+            printf("RT FROM algo : %d\n", current.remainingtime);
         }
-        clock = getClk(); 
+        clock = getClk();
     }
-    
-    if ((current.state != 1) && isEmpty(&Ready)!=1)
+
+    if ((current.state != 1) && isEmpty(&Ready) != 1)
     {
         current = dequeu(&Ready);
-        //printf("hello : %d\n", current.state);
-        if (current.state==0) // means at the beggining only
+        // printf("hello : %d\n", current.state);
+        if (current.state == 0) // means at the beggining only
         {
-            
+
             current.state = 1; // running
 
             int wait = getClk() - current.arrivaltime; // wait at begining only
@@ -325,49 +326,47 @@ void RR()
         }
         else if (current.state == 3) // waitinig
         {
-            
+
             current.waitingtime += getClk() - current.last;
             snprintf(str, sizeof(str), "At time %d process %d resumed arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
             writeStringToFile("scheduler.log", str);
-            current.state = 1;           
-            
+            current.state = 1;
+
             (*shmaddrs) = current.remainingtime;
             kill(current.acc_pid, SIGCONT);
-            
-
         }
     }
-    else if (current.state == 1   &&isEmpty(&Ready)!=1&&current.begin-quantum==current.remainingtime)
+    else if (current.state == 1 && isEmpty(&Ready) != 1 && current.begin - quantum == current.remainingtime)
     {
-      if(current.begin-quantum==0)
-      return;
+        if (current.begin - quantum == 0)
+            return;
         kill(current.acc_pid, SIGSTOP);
-        (*shmaddrs)=current.remainingtime;
-       printf("\nunique  %d %d\n",rec.arrivaltime,getClk());
-       if(rec.pid!=-1&&rec.arrivaltime==getClk())
-       {
-        printf("\nunique  %d\n",rec.pid);
-        printf("********************************\n");
-         printQueue(&Ready);
-           printf("********************************\n");
-        printf("\nunique2 %d\n",findQuick(&Ready,rec));
-        if(findQuick(&Ready,rec)==0)
+        (*shmaddrs) = current.remainingtime;
+        printf("\nunique  %d %d\n", rec.arrivaltime, getClk());
+        if (rec.pid != -1 && rec.arrivaltime == getClk())
         {
-            printf("\nunique2\n");
-        enqueue(&Ready, rec,getClk());
-       }
-       }
+            printf("\nunique  %d\n", rec.pid);
+            printf("********************************\n");
+            printQueue(&Ready);
+            printf("********************************\n");
+            printf("\nunique2 %d\n", findQuick(&Ready, rec));
+            if (findQuick(&Ready, rec) == 0)
+            {
+                printf("\nunique2\n");
+                enqueue(&Ready, rec, getClk());
+            }
+        }
         current.last = getClk();
-        current.begin-=quantum;
+        current.begin -= quantum;
         current.state = 3;
-        enqueue(&Ready, current,getClk());
+        enqueue(&Ready, current, getClk());
         snprintf(str, sizeof(str), "At time %d process %d Stopped arr %d total %d remain %d wait %d \n", getClk(), current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime);
         writeStringToFile("scheduler.log", str);
         current = top(&Ready);
         printf("********************************\n");
-         printQueue(&Ready);
-           printf("********************************\n");
-           RR();
+        printQueue(&Ready);
+        printf("********************************\n");
+        RR();
     }
     return;
 }
