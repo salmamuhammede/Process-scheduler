@@ -120,12 +120,19 @@ int quantum;
         quantum = atoi(quantum_str);
         // Now you have the quantum value, you can use it as needed
     }
-    chat commmand[300];
+    char commmand[300];
     snprintf(commmand,sizeof(commmand),"./process_generator.out \"%s\" %d %d",process_info,selected_algorithm,quantum);
     system(commmand);
     // Generate image with selected information
+    int stat
+    key_t p;
+    do{
+    p=waitpid(-1,&stat,0);
+    }while(p==0);
+
     create_image_from_text("scheduler.log", "image1.png");
-    create_image_from_text("scheduler.pref", "image2.png");
+
+    create_image_from_text("scheduler.perf", "image2.png");
 }
 
 int main(int argc, char *argv[]) {
