@@ -22,7 +22,11 @@ void create_image_from_text(const char *input_file, const char *output_file) {
     }
 
     // Create a Cairo surface (e.g., PNG file)
-    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 400, 200);
+    cairo_surface_t *surface;
+    if(output_file=="image1.png")
+    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 400);
+    else
+    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 400, 200);
     cairo_t *cr = cairo_create(surface);
 
     // Set background color to black
