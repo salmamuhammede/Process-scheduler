@@ -105,9 +105,16 @@ int main(int argc, char *argv[])
                 printf("****%d**********%d\n", getClk(), messagebefore.send.pid);
                 if (messagebefore.send.pid != -3)
                 {
+
                     SelectedAlgo(cur_algo, messagebefore.send);
+                     printQueue(&Ready);
+                    printf("**********\n");
+                    printQueue(&Waiting);
+                    insert_in_ready(cur_algo,messagebefore.send);
+                     printf("karddddddddddddeem%d\n",getClk());
                     writeToFile("output.txt", messagebefore.send.pid, getClk());
                     rec = messagebefore.send;
+                   
                 }
                 // printQueue(&Ready);
                 //  printf("hallo");
@@ -115,17 +122,27 @@ int main(int argc, char *argv[])
             }
             printf("######%d#############%d\n", getClk(), messagebefore.send.pid);
             if (cur_algo == 2)
-                HPF();
+                {
+                 //insert_in_ready(cur_algo,messagebefore.send);
+                    HPF();
+                }
             else if (cur_algo == 3)
-                SRTN();
+                {
+                   //insert_in_ready(cur_algo,messagebefore.send);
+                    SRTN();
+                }
             else if (cur_algo == 1)
             {
-                RR();
+                {
+                   //insert_in_ready(cur_algo,messagebefore.send);
+                    RR();
+                }
             }
             if (messagebefore.send.pid == -2)
             {
                 flag = 1;
             }
+
         }
     }
     Final_time = getClk();
@@ -141,23 +158,45 @@ void SelectedAlgo(int x, struct PCB com)
     if (x == 1)
     {
 
-        enqueue(&Ready, com, com.arrivaltime);
+        enqueue(&Waiting, com, com.arrivaltime);
     }
     // RR
 
     if (x == 2)
     {
-        enqueue(&Ready, com, com.priority);
+        enqueue(&Waiting, com, com.arrivaltime);
     }
     // HPF
 
     if (x == 3)
     {
        
-            enqueue(&Ready, com, com.remainingtime);
+        enqueue(&Waiting, com, com.arrivaltime);
         
     }
     // SRTN
+}
+void insert_in_ready(int x,struct PCB com)
+{
+    if (x == 1)
+    {
+
+        eneque_Ready(&Waiting,&Ready, com.arrivaltime,&t);
+    }
+    // RR
+
+    if (x == 2)
+    {
+        eneque_Ready(&Waiting, &Ready, com.priority,&t);
+    }
+    // HPF
+
+    if (x == 3)
+    {
+       
+        eneque_Ready(&Waiting,&Ready, com.waitingtime,&t);
+        
+    }
 }
 void HPF()
 {

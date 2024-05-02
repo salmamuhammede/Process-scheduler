@@ -206,11 +206,11 @@ int readFile(char *filename)
                     dummy2.arrivaltime=j;
                     dummy2.pid=-3;
                     enqueue(&ready, dummy2, dummy2.arrivaltime);
-                    printf("%d    %d     %d     %d     %d\n", dummy2.pid, dummy2.arrivaltime, runtime, priority,&memSize);//
+                    printf("%d    %d     %d     %d     %d\n", dummy2.pid, dummy2.arrivaltime, runtime, priority,memSize);//
                 }
             }
             enqueue(&ready, currentprocess, currentprocess.arrivaltime);
-            printf("%d    %d     %d     %d     %d\n", id, arrival, runtime, priority,&memSize);
+            printf("%d    %d     %d     %d     %d\n", id, arrival, runtime, priority,memSize);
             dummy1=currentprocess;
             i++;
         }
