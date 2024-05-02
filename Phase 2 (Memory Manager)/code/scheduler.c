@@ -30,6 +30,8 @@ int p_num, Ori_p_num;
 int shmidd;
 int *shmaddrs;
 priorityQueue Ready;
+priorityQueue Waiting;
+Tree t;
 void HPF();
 void RR();
 int quantum;
@@ -38,8 +40,13 @@ float WTA, Avg_WTA = 0, Avg_waiting = 0, STD_WTA;
 int cur_algo;
 float *WTAArr;
 int clock;
+
 int main(int argc, char *argv[])
 {
+     
+    struct PCB dummy;
+    dummy.pid = -1;
+    t.root = createNode(0, 1023, dummy, 1);
     current.state = 0;
     cur_algo = atoi(argv[1]);
     signal(SIGUSR1, handler);
@@ -71,6 +78,7 @@ int main(int argc, char *argv[])
     // TODO implement the scheduler :)
     // upon termination release the clock resources.
     initQueue(&Ready);
+    initQueue(&Waiting);
     printf("\nreceived %d \n", msqid);
     p_num = atoi(argv[3]);
     Ori_p_num = p_num;
@@ -132,6 +140,7 @@ void SelectedAlgo(int x, struct PCB com)
 {
     if (x == 1)
     {
+
         enqueue(&Ready, com, com.arrivaltime);
     }
     // RR
@@ -144,7 +153,9 @@ void SelectedAlgo(int x, struct PCB com)
 
     if (x == 3)
     {
-        enqueue(&Ready, com, com.remainingtime);
+       
+            enqueue(&Ready, com, com.remainingtime);
+        
     }
     // SRTN
 }

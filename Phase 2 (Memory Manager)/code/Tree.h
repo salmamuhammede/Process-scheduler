@@ -3,53 +3,187 @@
 #include "headers.h"
 #include "PCB.h"
 // Define the structure for the tree node
-typedef struct Node {
+typedef struct Node
+{
     int start;
     int end;
     int empty;
-    struct Node* r;
-    struct Node* l;
+    struct Node *r;
+    struct Node *l;
+    struct Node *parent;
     struct PCB P;
+    int size;
 } Node;
 
 // Function to create a new node
-Node* createNode(int s,int e, struct PCB p) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    if (newNode == NULL) {
+Node *createNode(int s, int e, struct PCB p, int emp)
+{
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    if (newNode == NULL)
+    {
         printf("Memory allocation failed\n");
         exit(1);
     }
+
     newNode->start = s;
     newNode->end = e;
     newNode->r = NULL;
     newNode->l = NULL;
-    newNode->P=p;
+    newNode->P = p;
+    newNode->size = e - s + 1;
+    newNode->empty = emp;
+
     return newNode;
 }
-typedef struct Tree {
-    Node*root;
-    
-} Tree;
+typedef struct Tree
+{
+    Node *root;
 
-void insertElement(struct PCB p,Tree* t,Node* root)
+} Tree;
+void FindMinLeaf(Node *root, int value, Node **minLeaf)
+{
+    if (root == NULL)
+    {
+
+        return;
+    }
+
+    // If current node is a leaf and greater than the given value
+    if (root->l == NULL && root->r == NULL && root->empty == 1 && root->size >= value)
+    {
+
+        if (*minLeaf == NULL || root->size < (*minLeaf)->size)
+        {
+            *minLeaf = root;
+        }
+    }
+
+    // Recursively search left and right subtrees
+
+    FindMinLeaf(root->l, value, minLeaf);
+    FindMinLeaf(root->r, value, minLeaf);
+}
+int insertElement(struct PCB p, Tree *t, Node *root)
 
 {
-    if(t->root==NULL)
+    if (t->root == NULL)
     {
-        struct PCB dummy;
-        dummy.pid=-1;
-        t->root=createNode(0,1023,dummy);
-        root=t->root;
+        
+      struct PCB dummy;
+    dummy.pid = -1;
+    t->root = createNode(0, 511, dummy, 1);
+    }
+    
+    {
+        Node *newNode = NULL;
+        FindMinLeaf(t->root, p.memSize, &newNode);
+
+        if (newNode != NULL)
+        {
+
+            insert(p, t, newNode, p.memSize);
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}
+void insert(struct PCB p, Tree *t, Node *root, int value)
+{
+    if (value <= root->size && value >= (root->size) / 2)
+    {
+
+        root->P = p;
+        root->empty = 0;
     }
     else
     {
-        if(root->end-root->start>p.memSize)
-        {
 
-        }
+        struct PCB dummy;
+        dummy.pid = -1;
+        root->l = createNode(root->start, (root->end + root->start) / 2, dummy, 1);
+        root->r = createNode((root->end + root->start) / 2 + 1, root->end, dummy, 1);
+        root->l->parent = root;
+        root->r->parent = root;
+
+        insert(p, t, root->l, value);
     }
-    
 }
 
+Node *Search(Node *root, int value)
+{
+    if (root == NULL)
+    {
+        // If the tree is empty or we've reached a leaf node, return NULL.
+        return NULL;
+    }
 
+    if (root->P.pid == value)
+    {
+        // If the current node contains the desired value, return this node.
+        return root;
+    }
+
+    // Recursively search in the left subtree.
+    Node *leftResult = Search(root->l, value);
+    if (leftResult != NULL)
+    {
+        // If the value is found in the left subtree, return it.
+        return leftResult;
+    }
+
+    // If not found in the left subtree, search in the right subtree.
+    return Search(root->r, value);
+}
+
+int delete(Tree *t,Node *root, int value)
+{
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *parent = (Node *)malloc(sizeof(Node));
+    newNode = Search(root, value);
+    if (newNode != NULL)
+    {
+        parent = newNode->parent;
+        free(newNode);
+        if (parent != NULL)
+        {
+            if (parent->l != NULL && parent->l->P.pid == newNode->P.pid)
+            {
+                parent->l = NULL;
+            }
+            else if (parent->r != NULL && parent->r->P.pid == newNode->P.pid)
+            {
+                parent->r = NULL;
+            }
+
+            killparent(t,parent);
+        }
+        else
+        {
+            t->root=NULL;
+        }
+        return 1;
+    }
+    else
+        return 0;
+}
+void killparent(Tree *t,Node *root)
+{
+    if (root->r == NULL && root->l == NULL)
+    {
+        delete (t,root, root->P.pid);
+    }
+}
+
+void printTree(Node *root)
+{
+    if (root == NULL)
+        return;
+    printTree(root->l);
+    if (root->empty != 1)
+        printf("Node [%d, %d] Size: %d Empty: %d PCB memSize: %d\n", root->start, root->end, root->size, root->empty, root->P.memSize);
+    printTree(root->r);
+}
 #endif
