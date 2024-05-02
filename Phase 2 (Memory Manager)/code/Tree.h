@@ -13,6 +13,7 @@ typedef struct Node
     struct Node *parent;
     struct PCB P;
     int size;
+    int child;
 } Node;
 
 // Function to create a new node
@@ -32,7 +33,7 @@ Node *createNode(int s, int e, struct PCB p, int emp)
     newNode->P = p;
     newNode->size = e - s + 1;
     newNode->empty = emp;
-
+newNode->child=0;
     return newNode;
 }
 typedef struct Tree
@@ -111,6 +112,11 @@ void insert(struct PCB p, Tree *t, Node *root, int value, int time)
         char str[100];
         snprintf(str, sizeof(str), "At time %d allocated %d bytes for process %d from %d to %d\n", time, p.memSize, p.pid, root->start, root->end);
         WriteStringToFile("memory.log", str);
+        while(root!=NULL&&root->parent!=NULL)
+        {
+            root->parent->child=1;
+            root=root->parent;
+        }
     }
     else
     {
@@ -153,8 +159,10 @@ Node *Search(Node *root, int value)
 
 void killparent(Tree *t, Node *root)
 {
-    if (root->r == NULL && root->l == NULL)
+    printf("fuckworlddddd%d   %d   %d\n",root->P.pid,root->start,root->end);
+    if ((root->r == NULL && root->l == NULL)||(root->r==NULL&&root->l!=NULL&&root->l->empty==1&&root->l->child==0)||(root->l==NULL&&root->r!=NULL&&root->r->empty==1&&root->r->child==0)||(root->l!=NULL&&root->l->empty==1&&root->l->child==0&&root->r!=NULL&&root->r->empty==1&&root->r->child==0))
     {
+        printf("fuckworld%d   %d   %d\n",root->P.pid,root->start,root->end);
         delete (t, root, root->P.pid);
     }
 }
@@ -165,6 +173,7 @@ int delete(Tree *t, Node *root, int value)
     newNode = Search(root, value);
     if (newNode != NULL)
     {
+        printf("fuckssss%d\n",newNode->P.pid);
         parent = newNode->parent;
         free(newNode);
         if (parent != NULL)
@@ -196,7 +205,7 @@ void printTree(Node *root)
         return;
     printTree(root->l);
     // if (root->empty != 1)
-    printf("Node [%d, %d] Size: %d Empty: %d PCB memSize: %d\n", root->start, root->end, root->size, root->empty, root->P.memSize);
+    printf("Node [%d, %d] Size: %d Empty: %d PCB memSize: %d  pid:%d\n", root->start, root->end, root->size, root->empty, root->P.memSize,root->P.pid);
     printTree(root->r);
 }
 #endif

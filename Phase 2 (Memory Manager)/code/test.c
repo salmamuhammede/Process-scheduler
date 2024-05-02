@@ -11,7 +11,7 @@ int main()
     // Create PCB instances
     struct PCB pcb1;
     pcb1.pid = 1;
-    pcb1.memSize = 1000;
+    pcb1.memSize = 500;
     struct PCB pcb2;
     pcb2.pid = 2;
     pcb2.memSize = 20;
@@ -26,31 +26,21 @@ int main()
     struct PCB dummy;
     dummy.pid = -1;
     t.root = createNode(0, 1023, dummy, 1); // Create root node
-    printTree(t.root);
-    printf("===================\n");
+
     insertElement(pcb1, &t, t.root, 0);
     insertElement(pcb2, &t, t.root, 0);
-
+    printf("**********\n");
+    printTree(t.root);
     // Insert pcb3
     // Insert pcb2
-    insertElement(pcb3, &t, t.root, 0);
-    printTree(t.root);
-    // printTree(t.root); // Insert pcb3
-
-    printf("===================\n");
-
+    // insertElement(pcb3, &t, t.root, 0);
     delete (&t, t.root, 1);
-    printTree(t.root);
+     printf("**********\n");
+     printTree(t.root);
+      printf("**********\n");
     delete (&t, t.root, 2);
     insertElement(pcb4, &t, t.root, 0);
-
-    printf("===================\n");
-    printTree(t.root);
-
-    delete (&t, t.root, 3);
-
-
-    printf("===================\n");
+ delete (&t, t.root, 4);
     printTree(t.root);
 
     // Print the tree structure

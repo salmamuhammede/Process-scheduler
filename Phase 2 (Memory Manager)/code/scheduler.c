@@ -191,12 +191,23 @@ void insert_in_ready(int x)
         if (x == 2)
         {
             // eneque_Ready(&Waiting, &Ready, com.priority, &t);
+            struct PCB dummy = top(&Waiting);
+            if (insertElement(dummy, &t, t.root, getClk()))
+            {
+                enqueue(&Ready, dummy, dummy.priority);
+                dequeu(&Waiting);
+            }
         }
         // HPF
 
         if (x == 3)
         {
-
+            struct PCB dummy = top(&Waiting);
+            if (insertElement(dummy, &t, t.root, getClk()))
+            {
+                enqueue(&Ready, dummy, dummy.waitingtime);
+                dequeu(&Waiting);
+            }
             // eneque_Ready(&Waiting, &Ready, com.waitingtime, &t);
         }
     }
@@ -459,7 +470,7 @@ void handler(int signum)
     int FT = getClk();
     current.remainingtime = *shmaddrs;
     printQueue(&Ready);
-    delete (&t, t.root, current.pid);
+
     TA = FT - current.arrivaltime;
     WTA = TA / (float)current.runningtime;
     WTAArr[Ori_p_num - p_num] = WTA;
@@ -469,6 +480,8 @@ void handler(int signum)
     Avg_waiting += (current.waitingtime / (float)Ori_p_num);
     Total_running += current.runningtime;
     p_num--;
+    delete (&t, t.root, current.pid);
+    insert_in_ready(cur_algo);
     current.state = 2;
     if (cur_algo == 2)
         HPF();
