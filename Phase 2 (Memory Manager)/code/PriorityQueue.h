@@ -69,55 +69,57 @@ int enqueue(priorityQueue *comming, struct PCB process, int chosen)
     comming->length++;
     return 1;
 }
-int eneque_Ready(priorityQueue *waiting, priorityQueue *ready, int chosen, Tree *t)
-{
-    if (waiting->head == NULL)
-        {
-            printf("zzzzzzzzzzyead\n");
-        return 0;
-        }
-    else
-    {
-       
-        node *currentProcess = (node *)malloc(sizeof(node));
-        currentProcess = waiting->head;
-        node *prev = (node *)malloc(sizeof(node));
-        prev = NULL;
-        while (1)
-        {
-            printf("kareem\n");
-            if (currentProcess != NULL)
-            {
-                 printf("zeyad\n");
-                if (insertElement(currentProcess->P, t, t->root) == 1)
-                {
-                    if (currentProcess->P.pid == waiting->head->P.pid)
-                    {
-                        enqueue(ready, currentProcess->P, chosen);
-                        waiting->head = currentProcess->next;
-                    }
-                    else
-                    {
-                        enqueue(ready, currentProcess->P, chosen);
-                        prev->next = currentProcess->next;
-                        currentProcess = NULL;
-                    }
-                  
-                    return 1;
-                }
-                else
-                {
-                    prev = currentProcess;
-                    currentProcess = currentProcess->next;
-                }
-            }
-            else
-            {
-                return 0;
-            }
-        }
-    }
-}
+// int eneque_Ready(priorityQueue *waiting, priorityQueue *ready, int chosen, Tree *t)
+// {
+//     if (waiting->head == NULL)
+//     {
+//         printf("zzzzzzzzzzyead\n");
+//         return 0;
+//     }
+//     else
+//     {
+
+//         node *currentProcess = (node *)malloc(sizeof(node));
+//         currentProcess = waiting->head;
+//         node *prev = (node *)malloc(sizeof(node));
+//         prev = NULL;
+//         while (1)
+//         {
+//             printf("kareem\n");
+//             if (currentProcess != NULL)
+//             {
+//                 printf("zeyad\n");
+//                 if (insertElement(currentProcess->P, t, t->root) == 1)
+//                 {
+//                     if (currentProcess->P.pid == waiting->head->P.pid)
+//                     {
+//                         enqueue(ready, currentProcess->P, chosen);
+//                         waiting->head = currentProcess->next;
+//                     }
+//                     else
+//                     {
+//                         enqueue(ready, currentProcess->P, chosen);
+//                         prev->next = currentProcess->next;
+//                         currentProcess = NULL;
+//                     }
+//                     printf("rrrrrrrrrrrrr");
+
+//                     return 1;
+//                 }
+//                 else
+//                 {
+//                     prev = currentProcess;
+//                     currentProcess = currentProcess->next;
+//                 }
+//                 printf("eneque ready");
+//             }
+//             else
+//             {
+//                 return 0;
+//             }
+//         }
+//     }
+// }
 int enqueue_priority(priorityQueue *comming, struct PCB process)
 {
     node *currentProcess = (node *)malloc(sizeof(node));

@@ -43,7 +43,7 @@ int clock;
 
 int main(int argc, char *argv[])
 {
-     
+
     struct PCB dummy;
     dummy.pid = -1;
     t.root = createNode(0, 1023, dummy, 1);
@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
     printf("%d\n", atoi(argv[1]));
     system("rm scheduler.log");
     system("rm scheduler.perf");
+    system("rm memory.log");
     // p_num++;
     // writeStringToFile("scheduler.log", "\U00002796\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U0001F7F0\U00002796\n");
     clock = getClk();
@@ -107,14 +108,13 @@ int main(int argc, char *argv[])
                 {
 
                     SelectedAlgo(cur_algo, messagebefore.send);
-                     printQueue(&Ready);
+                    printQueue(&Ready);
                     printf("**********\n");
                     printQueue(&Waiting);
-                    insert_in_ready(cur_algo,messagebefore.send);
-                     printf("karddddddddddddeem%d\n",getClk());
+                    insert_in_ready(cur_algo);
+                    printf("karddddddddddddeem%d\n", getClk());
                     writeToFile("output.txt", messagebefore.send.pid, getClk());
                     rec = messagebefore.send;
-                   
                 }
                 // printQueue(&Ready);
                 //  printf("hallo");
@@ -122,27 +122,24 @@ int main(int argc, char *argv[])
             }
             printf("######%d#############%d\n", getClk(), messagebefore.send.pid);
             if (cur_algo == 2)
-                {
-                 //insert_in_ready(cur_algo,messagebefore.send);
-                    HPF();
-                }
+            {
+                // insert_in_ready(cur_algo,messagebefore.send);
+                HPF();
+            }
             else if (cur_algo == 3)
-                {
-                   //insert_in_ready(cur_algo,messagebefore.send);
-                    SRTN();
-                }
+            {
+                // insert_in_ready(cur_algo,messagebefore.send);
+                SRTN();
+            }
             else if (cur_algo == 1)
             {
-                {
-                   //insert_in_ready(cur_algo,messagebefore.send);
-                    RR();
-                }
+                insert_in_ready(cur_algo);
+                RR();
             }
             if (messagebefore.send.pid == -2)
             {
                 flag = 1;
             }
-
         }
     }
     Final_time = getClk();
@@ -170,32 +167,38 @@ void SelectedAlgo(int x, struct PCB com)
 
     if (x == 3)
     {
-       
+
         enqueue(&Waiting, com, com.arrivaltime);
-        
     }
     // SRTN
 }
-void insert_in_ready(int x,struct PCB com)
+void insert_in_ready(int x)
 {
-    if (x == 1)
+    if (!isEmpty(&Waiting))
     {
 
-        eneque_Ready(&Waiting,&Ready, com.arrivaltime,&t);
-    }
-    // RR
+        if (x == 1)
+        {
+            struct PCB dummy = top(&Waiting);
+            if (insertElement(dummy, &t, t.root, getClk()))
+            {
+                enqueue(&Ready, dummy, dummy.arrivaltime);
+                dequeu(&Waiting);
+            }
+        }
+        // RR
 
-    if (x == 2)
-    {
-        eneque_Ready(&Waiting, &Ready, com.priority,&t);
-    }
-    // HPF
+        if (x == 2)
+        {
+            // eneque_Ready(&Waiting, &Ready, com.priority, &t);
+        }
+        // HPF
 
-    if (x == 3)
-    {
-       
-        eneque_Ready(&Waiting,&Ready, com.waitingtime,&t);
-        
+        if (x == 3)
+        {
+
+            // eneque_Ready(&Waiting, &Ready, com.waitingtime, &t);
+        }
     }
 }
 void HPF()
@@ -456,6 +459,7 @@ void handler(int signum)
     int FT = getClk();
     current.remainingtime = *shmaddrs;
     printQueue(&Ready);
+    delete (&t, t.root, current.pid);
     TA = FT - current.arrivaltime;
     WTA = TA / (float)current.runningtime;
     WTAArr[Ori_p_num - p_num] = WTA;

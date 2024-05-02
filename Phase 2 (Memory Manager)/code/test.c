@@ -11,34 +11,49 @@ int main()
     // Create PCB instances
     struct PCB pcb1;
     pcb1.pid = 1;
-    pcb1.memSize = 70;
+    pcb1.memSize = 1000;
     struct PCB pcb2;
     pcb2.pid = 2;
-    pcb2.memSize = 35;
+    pcb2.memSize = 20;
     struct PCB pcb3;
     pcb3.pid = 3;
-    pcb3.memSize = 80;
+    pcb3.memSize = 30;
     struct PCB pcb4;
     pcb4.pid = 4;
-    pcb4.memSize = 1;
+    pcb4.memSize = 500;
 
     // Insert elements into the tree
     struct PCB dummy;
     dummy.pid = -1;
-    t.root = createNode(0, 511, dummy, 1); // Create root node
-    insertElement(pcb1, &t, t.root);
-    insertElement(pcb2, &t, t.root);
-   
+    t.root = createNode(0, 1023, dummy, 1); // Create root node
+    printTree(t.root);
+    printf("===================\n");
+    insertElement(pcb1, &t, t.root, 0);
+    insertElement(pcb2, &t, t.root, 0);
 
     // Insert pcb3
     // Insert pcb2
-    insertElement(pcb3, &t, t.root);
-    //printTree(t.root); // Insert pcb3
-    delete (&t,t.root, 1);
-    insertElement(pcb4, &t, t.root);
+    insertElement(pcb3, &t, t.root, 0);
+    printTree(t.root);
+    // printTree(t.root); // Insert pcb3
+
+    printf("===================\n");
+
+    delete (&t, t.root, 1);
+    printTree(t.root);
+    delete (&t, t.root, 2);
+    insertElement(pcb4, &t, t.root, 0);
+
+    printf("===================\n");
+    printTree(t.root);
+
+    delete (&t, t.root, 3);
+
+
+    printf("===================\n");
+    printTree(t.root);
 
     // Print the tree structure
-    printTree(t.root);
 
     return 0;
 }
