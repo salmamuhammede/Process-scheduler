@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
             }
         }
     }
-    Final_time = getClk()+1;
+    Final_time = getClk();
     Finish();
     printf("complete\n");
     msgctl(msqid, IPC_RMID, (struct msqid_ds *)0);
