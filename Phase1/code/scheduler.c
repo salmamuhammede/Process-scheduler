@@ -336,7 +336,7 @@ void RR()
             kill(current.acc_pid, SIGCONT);
         }
     }
-    else if (current.state == 1 && isEmpty(&Ready) != 1 && current.begin - quantum == current.remainingtime)
+    else if (current.state == 1 && current.begin - quantum == current.remainingtime)
     {
         if (current.begin - quantum == 0)
             return;
