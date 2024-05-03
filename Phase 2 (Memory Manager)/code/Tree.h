@@ -105,7 +105,7 @@ int insertElement(struct PCB p, Tree *t, Node *root, int time)
 }
 void insert(struct PCB p, Tree *t, Node *root, int value, int time)
 {
-    if ((root->size == 8 && value <= root->size) || (value <= root->size && value >= (root->size) / 2))
+    if ((root->size == 8 && value <= root->size) || (value <= root->size && value > (root->size) / 2))
     {
         root->P = p;
         root->empty = 0;
