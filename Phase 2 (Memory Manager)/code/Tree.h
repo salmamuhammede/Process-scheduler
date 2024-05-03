@@ -159,10 +159,10 @@ Node *Search(Node *root, int value)
 
 void killparent(Tree *t, Node *root)
 {
-    printf("fuckworlddddd%d   %d   %d\n",root->P.pid,root->start,root->end);
+   
     if ((root->r == NULL && root->l == NULL)||(root->r==NULL&&root->l!=NULL&&root->l->empty==1&&root->l->child==0)||(root->l==NULL&&root->r!=NULL&&root->r->empty==1&&root->r->child==0)||(root->l!=NULL&&root->l->empty==1&&root->l->child==0&&root->r!=NULL&&root->r->empty==1&&root->r->child==0))
     {
-        printf("fuckworld%d   %d   %d\n",root->P.pid,root->start,root->end);
+       
         delete (t, root, root->P.pid);
     }
 }
@@ -173,7 +173,7 @@ int delete(Tree *t, Node *root, int value)
     newNode = Search(root, value);
     if (newNode != NULL)
     {
-        printf("fuckssss%d\n",newNode->P.pid);
+       
         parent = newNode->parent;
         free(newNode);
         if (parent != NULL)
