@@ -401,7 +401,7 @@ void RR()
             kill(current.acc_pid, SIGCONT);
         }
     }
-    else if (current.state == 1 && isEmpty(&Ready) != 1 && current.begin - quantum == current.remainingtime)
+    else if (current.state == 1 && current.begin - quantum == current.remainingtime)
     {
         if (current.begin - quantum == 0)
             return;
@@ -469,7 +469,7 @@ void handler(int signum)
     char str[100];
     int FT = getClk();
     current.remainingtime = *shmaddrs;
-    printQueue(&Ready);
+   // printQueue(&Ready);
 
     TA = FT - current.arrivaltime;
     WTA = TA / (float)current.runningtime;
@@ -482,7 +482,7 @@ void handler(int signum)
     Avg_waiting += (current.waitingtime / (float)Ori_p_num);
     Total_running += current.runningtime;
     p_num--;
-    delete (&t, t.root, current.pid);
+    delete (&t, t.root, current.pid,0);
     printTree(t.root);
     insert_in_ready(cur_algo);
     current.state = 2;
