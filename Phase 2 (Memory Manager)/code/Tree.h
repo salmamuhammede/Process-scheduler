@@ -159,12 +159,26 @@ Node *Search(Node *root, int value)
 
 void killparent(Tree *t, Node *root)
 {
-   
+   if(root->r==NULL)
+   printf("right null\n");
+   if(root->l=NULL)
+   {
+    printf("left NULL\n");
+   }
     if ((root->r == NULL && root->l == NULL)||(root->r==NULL&&root->l!=NULL&&root->l->empty==1&&root->l->child==0)||(root->l==NULL&&root->r!=NULL&&root->r->empty==1&&root->r->child==0)||(root->l!=NULL&&root->l->empty==1&&root->l->child==0&&root->r!=NULL&&root->r->empty==1&&root->r->child==0))
     {
        
         delete (t, root, root->P.pid);
     }
+}
+void printTree(Node *root)
+{
+    if (root == NULL)
+        return;
+    printTree(root->l);
+    // if (root->empty != 1)
+    printf("Node [%d, %d] Size: %d Empty: %d PCB memSize: %d  havechild:%d pid:%d\n", root->start, root->end, root->size, root->empty, root->P.memSize,root->child,root->P.pid);
+    printTree(root->r);
 }
 int delete(Tree *t, Node *root, int value)
 {
@@ -175,37 +189,34 @@ int delete(Tree *t, Node *root, int value)
     {
        
         parent = newNode->parent;
-        free(newNode);
+        
         if (parent != NULL)
         {
             if (parent->l != NULL && parent->l->P.pid == newNode->P.pid)
             {
+                free(parent->l);
                 parent->l = NULL;
             }
             else if (parent->r != NULL && parent->r->P.pid == newNode->P.pid)
             {
+                free(parent->r);
                 parent->r = NULL;
+                
             }
 
             killparent(t, parent);
         }
         else
         {
+            free(t->root);
             t->root = NULL;
         }
+        
         return 1;
     }
     else
         return 0;
 }
 
-void printTree(Node *root)
-{
-    if (root == NULL)
-        return;
-    printTree(root->l);
-    // if (root->empty != 1)
-    printf("Node [%d, %d] Size: %d Empty: %d PCB memSize: %d  pid:%d\n", root->start, root->end, root->size, root->empty, root->P.memSize,root->P.pid);
-    printTree(root->r);
-}
+
 #endif

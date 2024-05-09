@@ -476,11 +476,14 @@ void handler(int signum)
     WTAArr[Ori_p_num - p_num] = WTA;
     snprintf(str, sizeof(str), "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %.2f\n", FT, current.pid, current.arrivaltime, current.runningtime, current.remainingtime, current.waitingtime, TA, WTA);
     writeStringToFile("scheduler.log", str);
+    snprintf(str,sizeof(str),"At time %d freed %d bytes from process %d from %d to %d\n",getClk(),current.memSize,current.pid,Search(t.root, current.pid)->start,Search(t.root, current.pid)->end);
+    writeStringToFile("memory.log", str);
     Avg_WTA += (WTA / Ori_p_num);
     Avg_waiting += (current.waitingtime / (float)Ori_p_num);
     Total_running += current.runningtime;
     p_num--;
     delete (&t, t.root, current.pid);
+    printTree(t.root);
     insert_in_ready(cur_algo);
     current.state = 2;
     if (cur_algo == 2)
