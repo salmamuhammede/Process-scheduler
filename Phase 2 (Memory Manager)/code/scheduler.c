@@ -205,7 +205,7 @@ void insert_in_ready(int x)
             struct PCB dummy = top(&Waiting);
             if (insertElement(dummy, &t, t.root, getClk()))
             {
-                enqueue(&Ready, dummy, dummy.waitingtime);
+                enqueue(&Ready, dummy, dummy.remainingtime);
                 dequeu(&Waiting);
             }
             // eneque_Ready(&Waiting, &Ready, com.waitingtime, &t);

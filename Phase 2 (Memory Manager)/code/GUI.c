@@ -24,9 +24,9 @@ void create_image_from_text(const char *input_file, const char *output_file) {
     // Create a Cairo surface (e.g., PNG file)
     cairo_surface_t *surface;
     if(output_file=="image1.png")
-    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 800, 400);
+    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1920, 1080);
     else
-    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 400, 200);
+    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1920, 1080);
     cairo_t *cr = cairo_create(surface);
 
     // Set background color to black
@@ -138,6 +138,7 @@ int quantum;
     create_image_from_text("scheduler.log", "image1.png");
 
     create_image_from_text("scheduler.perf", "image2.png");
+    create_image_from_text("memory.log","image3.png");
 }
 
 int main(int argc, char *argv[]) {
